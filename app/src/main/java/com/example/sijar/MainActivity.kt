@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.ui.theme.SIJARTheme
 import com.example.sijar.ui.theme.presentation.BarangScreen
@@ -33,6 +34,7 @@ import com.example.sijar.ui.theme.presentation.RiwayatScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -73,7 +75,11 @@ fun SIJARApp() {
         ) {
             when (currentDestination) {
                 AppDestinations.HOME -> DashboardScreen()
-                AppDestinations.BARANG -> BarangScreen()
+                AppDestinations.BARANG -> BarangScreen(
+                    onItemClick = { itemId ->
+                        currentDestination = AppDestinations.PINJAM
+                    }
+                )
                 AppDestinations.PINJAM -> PinjamBarang()
                 AppDestinations.RIWAYAT -> RiwayatScreen()
                 AppDestinations.PROFILE -> ProfileScreen(onLogout = {

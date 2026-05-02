@@ -2,17 +2,12 @@ package com.example.sijar.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide.init
 import com.example.sijar.api.model.data.Item
 import com.example.sijar.api.model.repository.ItemRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.UiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class BarangViewModel(
@@ -21,6 +16,9 @@ class BarangViewModel(
 
     private val _barangState = MutableStateFlow<UiState<List<Item>>>(UiState.Loading)
     val barangState: StateFlow<UiState<List<Item>>> = _barangState
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
@@ -35,7 +33,7 @@ class BarangViewModel(
     ) { state, query, jurusanId ->
         if (state is UiState.Success) {
             state.data.filter { item ->
-                val matchesQuery = item.namaItem?.contains(query, ignoreCase = true)?: true
+                val matchesQuery = item.namaItem?.contains(query, ignoreCase = true) ?: true
                 val matchesJurusan = if (jurusanId != null) item.kategoriJurusanId == jurusanId else true
                 matchesQuery && matchesJurusan
             }
@@ -48,9 +46,21 @@ class BarangViewModel(
         fetchBarang()
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            fetchBarang()
+            _isRefreshing.value = false
+        }
+    }
+
     private fun fetchBarang() {
         viewModelScope.launch {
-            _barangState.value = UiState.Loading
+            // Only set to Loading if not currently refreshing (to allow skeleton on first load)
+            if (!_isRefreshing.value) {
+                _barangState.value = UiState.Loading
+            }
+            
             when (val result = repository.getItems()) {
                 is ApiResult.Success -> {
                     _barangState.value = UiState.Success(result.data.data)
