@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SIJAR</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_barang">Item</string>
+    <string name="menu_pinjam">Borrow</string>
+    <string name="menu_riwayat">History</string>
+    <string name="menu_profile">Profile</string>
+</resources>
