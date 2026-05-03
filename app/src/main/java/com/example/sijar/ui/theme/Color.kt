@@ -14,6 +14,12 @@ val TextMuted = Color(0xFF6B8BAD)
 val GreenSoft = Color(0xFF3DBD8F)
 val YellowSoft = Color(0xFFF5C842)
 
-// Legacy colors (keeping some if needed, but primary ones are above)
 val DarkBackground = Color(0xFF0F172A)
 val CardGlass = Color(0x991E293B)
+
+// Warna identitas per jurusan
+val ColorPPLG = Color(0xFF4A90D9)
+val ColorDKV = Color(0xFFF5C842)
+val ColorLK = Color(0xFF3DBD8F)
+val ColorTJKT = Color(0xFFFF7043)
+val ColorPS = Color(0xFF2563A8)

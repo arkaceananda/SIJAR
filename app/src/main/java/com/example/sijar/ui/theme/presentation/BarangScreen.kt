@@ -1,13 +1,17 @@
 package com.example.sijar.ui.theme.presentation
 
+import android.R.attr.label
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -21,14 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.sijar.api.model.data.Item
+import com.example.sijar.api.model.data.JurusanFilter
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.UiState
-import com.example.sijar.ui.theme.BlueLighter
-import com.example.sijar.ui.theme.GreenSoft
-import com.example.sijar.ui.theme.YellowSoft
+import com.example.sijar.ui.theme.*
 import com.example.sijar.viewModel.BarangViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,120 +47,175 @@ fun BarangScreen(
     val selectedJurusan by viewModel.selectedJurusan.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    // contoh
     val daftarJurusan = listOf(
-        "Semua Jurusan" to null,
-        "PPLG" to 1,
-        "DKV" to 2,
-        "LK" to 3,
-        "TJKT" to 4,
-        "PS" to 5
+        JurusanFilter("Semua", null, BluePrimary),
+        JurusanFilter("PPLG", 1, ColorPPLG),
+        JurusanFilter("DKV", 2, ColorDKV),
+        JurusanFilter("LK", 3, ColorLK),
+        JurusanFilter("TJKT", 4, ColorTJKT),
+        JurusanFilter("PS", 5, ColorPS)
     )
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { viewModel.refresh() }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { viewModel.onSearchQueryChange(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Cari Barang...") },
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true
-            )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Sky),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
+            // Header section
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(White)
+                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                ) {
+                    Text(
+                        text = "Katalog Barang",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = TextMain
+                    )
+                    Text(
+                        text = "Pilih barang yang ingin dipinjam",
+                        fontSize = 13.sp,
+                        color = TextMuted,
+                        modifier = Modifier.padding(top = 2.dp, bottom = 16.dp)
+                    )
 
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(daftarJurusan) { (label, id) ->
-                    val isSelected = selectedJurusan == id
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .clickable { viewModel.onJurusanSelected(id) },
-                        color = if (isSelected) {
-                            when (label) {
-                                "PPLG" -> MaterialTheme.colorScheme.primary
-                                "DKV" -> YellowSoft
-                                "LK" -> GreenSoft
-                                "TJKT" -> BlueLighter
-                                "PS" -> GreenSoft
-                                else -> MaterialTheme.colorScheme.primary
-                            }
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
+                    // Search bar
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { viewModel.onSearchQueryChange(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = {
+                            Text("Cari nama barang...", color = TextMuted, fontSize = 14.sp)
                         },
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Text(
-                            text = label,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Search,
+                                contentDescription = null,
+                                tint = TextMuted,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = BluePrimary,
+                            unfocusedBorderColor = BlueLighter,
+                            cursorColor = BluePrimary,
+                            focusedContainerColor = White,
+                            unfocusedContainerColor = Sky
                         )
-                    }
+                    )
                 }
             }
 
-            when (uiState) {
-                is UiState.Loading -> {
-                    // Skeleton Loading
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    ) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .padding(vertical = 16.dp)
-                                    .size(width = 150.dp, height = 24.dp)
-                                    .shimmerEffect()
+            // Filter chips
+            item {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(White)
+                        .padding(start = 20.dp, end = 20.dp, bottom = 16.dp, top = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(daftarJurusan) { jurusan ->
+                        val isSelected = selectedJurusan == jurusan.id
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isSelected) jurusan.activeColor else Sky)
+                                .border(
+                                    width = 1.dp,
+                                    color = if (isSelected) jurusan.activeColor else BlueLighter,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .clickable { viewModel.onJurusanSelected(jurusan.id) }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = jurusan.label,
+                                fontSize = 13.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) White else TextMuted
                             )
                         }
-                        items(5) {
-                            BarangCardSkeleton()
-                        }
+                    }
+                }
+                Divider(color = BlueLighter, thickness = 1.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Main Content
+            when (uiState) {
+                is UiState.Loading -> {
+                    item {
+                        Text(
+                            text = "Memuat barang...",
+                            fontSize = 13.sp,
+                            color = TextMuted,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(4) {
+                        BarangCardSkeleton()
                     }
                 }
 
                 is UiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    ) {
-                        item {
+                    item {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                "Daftar Barang",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.padding(vertical = 16.dp)
+                                text = "${filteredList.size} barang ditemukan",
+                                fontSize = 13.sp,
+                                color = TextMuted
                             )
                         }
-
-                        items(filteredList) { barang ->
-                            BarangCard(
-                                barang = barang,
-                                onClick = { onItemClick(barang.id) }
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    items(filteredList) { barang ->
+                        BarangCard(
+                            barang = barang,
+                            onClick = { onItemClick(barang.id) }
+                        )
                     }
                 }
 
                 is UiState.Error -> {
-                    val message = (uiState as UiState.Error).message
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Error: $message", color = MaterialTheme.colorScheme.error)
-                            Button(onClick = { viewModel.refresh() }, modifier = Modifier.padding(top = 8.dp)) {
-                                Text("Coba Lagi")
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 48.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Gagal memuat data",
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextMain,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = (uiState as UiState.Error).message,
+                                color = TextMuted,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                            )
+                            Button(
+                                onClick = { viewModel.refresh() },
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                            ) {
+                                Text("Coba Lagi", color = White, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -168,79 +227,100 @@ fun BarangScreen(
 
 @Composable
 fun BarangCard(barang: Item, onClick: () -> Unit) {
+    val status = barang.statusItem?.lowercase() ?: "unknown"
+    val tersedia = status == "tersedia"
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { if (barang.statusItem?.lowercase() == "tersedia") onClick() },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .then(if (tersedia) Modifier.clickable { onClick() } else Modifier),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column {
-            AsyncImage(
-                model = "${ApiClient.BASE_URL}storage/barang/${barang.fotoBarang}",
-                contentDescription = barang.namaItem,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                contentScale = ContentScale.Crop
-            )
+            // Foto barang
+            Box {
+                AsyncImage(
+                    model = "${ApiClient.BASE_URL}storage/barang/${barang.fotoBarang}",
+                    contentDescription = barang.namaItem,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
+                // Badge status
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(
+                            when (status) {
+                                "tersedia" -> GreenSoft.copy(alpha = 0.92f)
+                                "dipinjam" -> YellowSoft.copy(alpha = 0.92f)
+                                else -> Color(0xFFE53935).copy(alpha = 0.92f)
+                            }
+                        )
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = status.uppercase(),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = White,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+            }
+
+            // Info barang
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = barang.namaItem ?: "No Name",
-                            style = MaterialTheme.typography.titleMedium,
+                            text = barang.namaItem ?: "Nama tidak tersedia",
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = TextMain
                         )
                         Text(
                             text = barang.kategoriJurusan?.namaKategori ?: "Umum",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    val status = barang.statusItem?.lowercase() ?: "Unknown"
-                    Surface(
-                        color = when (status) {
-                            "tersedia" -> GreenSoft
-                            "dipinjam" -> YellowSoft
-                            else -> MaterialTheme.colorScheme.error
-                        }.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(4.dp)
-                    ) {
-                        Text(
-                            text = status.uppercase(),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = when (status) {
-                                "tersedia" -> GreenSoft
-                                "dipinjam" -> YellowSoft
-                                else -> MaterialTheme.colorScheme.error
-                            },
-                            fontWeight = FontWeight.Bold
+                            fontSize = 12.sp,
+                            color = TextMuted,
+                            modifier = Modifier.padding(top = 2.dp)
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(14.dp))
+                Divider(color = BlueLighter, thickness = 0.5.dp)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Button(
                     onClick = onClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    enabled = barang.statusItem?.lowercase() == "tersedia"
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    enabled = tersedia,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BluePrimary,
+                        disabledContainerColor = BlueLighter
+                    )
                 ) {
-                    Text("Pinjam Sekarang", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = if (tersedia) "Pinjam Sekarang" else "Tidak Tersedia",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = if (tersedia) White else TextMuted
+                    )
                 }
             }
         }
@@ -252,32 +332,30 @@ fun BarangCardSkeleton() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(horizontal = 20.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     .shimmerEffect()
             )
             Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Box(modifier = Modifier.size(width = 150.dp, height = 20.dp).shimmerEffect())
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Box(modifier = Modifier.size(width = 80.dp, height = 14.dp).shimmerEffect())
-                    }
-                    Box(modifier = Modifier.size(width = 70.dp, height = 24.dp).shimmerEffect())
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(modifier = Modifier.fillMaxWidth().height(40.dp).shimmerEffect())
+                Box(modifier = Modifier.size(width = 160.dp, height = 16.dp).shimmerEffect())
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.size(width = 90.dp, height = 12.dp).shimmerEffect())
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .shimmerEffect()
+                )
             }
         }
     }
@@ -289,23 +367,20 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         initialValue = 0f,
         targetValue = 1000f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "shimmer_anim"
+        label = "shimmer"
     )
-
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.6f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.6f),
+    background(
+        Brush.linearGradient(
+            colors = listOf(
+                BlueLighter.copy(alpha = 0.5f),
+                Sky,
+                BlueLighter.copy(alpha = 0.5f),
+            ),
+            start = Offset.Zero,
+            end = Offset(x = translateAnim, y = translateAnim)
+        )
     )
-
-    val brush = Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset.Zero,
-        end = Offset(x = translateAnim, y = translateAnim)
-    )
-
-    this.then(Modifier.background(brush))
 }

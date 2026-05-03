@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation(libs.androidx.compose.material.icons.extended.android)
     implementation(libs.retrofit)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation(libs.converter.gson)
     implementation(libs.glide)
     implementation(libs.coil.compose)
