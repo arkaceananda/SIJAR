@@ -1,3 +1,5 @@
+package com.example.sijar.ui.theme
+
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -18,14 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sijar.AppDestinations
-import com.example.sijar.ui.theme.BlueDarker
-import com.example.sijar.ui.theme.BlueLight
-import com.example.sijar.ui.theme.BluePrimary
-import com.example.sijar.ui.theme.White
 
 @Composable
 fun FloatingNavBar(
@@ -96,13 +95,14 @@ fun NavBarItem(
             .padding(horizontal = horizontalPadding, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
+        val label = stringResource(id = destination.labelResId)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
                 imageVector = if (isSelected) destination.iconSelected else destination.iconUnselected,
-                contentDescription = destination.label,
+                contentDescription = label,
                 tint = if (isSelected) White else White.copy(alpha = 0.55f),
                 modifier = Modifier.size(20.dp)
             )
@@ -113,7 +113,7 @@ fun NavBarItem(
                 exit = fadeOut(animationSpec = tween(150))
             ) {
                 Text(
-                    text = destination.label,
+                    text = label,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = White,
