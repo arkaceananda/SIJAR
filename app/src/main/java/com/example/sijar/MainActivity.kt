@@ -1,6 +1,5 @@
 package com.example.sijar
 
-import FloatingNavBar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,8 +17,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.sijar.api.utils.SessionManager
+import com.example.sijar.ui.view.BarangScreen
+import com.example.sijar.ui.view.DashboardScreen
+import com.example.sijar.ui.view.LoginScreen
+import com.example.sijar.ui.view.PinjamBarang
+import com.example.sijar.ui.view.ProfileScreen
+import com.example.sijar.ui.view.RiwayatScreen
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.theme.presentation.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

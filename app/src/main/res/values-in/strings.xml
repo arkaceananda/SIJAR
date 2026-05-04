@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">SIJAR</string>
+    <string name="sijar_desc">Sistem Informasi Peminjaman Barang</string>
     <string name="menu_home">Beranda</string>
     <string name="menu_barang">Barang</string>
     <string name="menu_pinjam">Pinjam</string>
@@ -9,4 +10,38 @@
     <string name="siang">Selamat Siang, $s</string>
     <string name="sore">Selamat Sore, $S</string>
     <string name="malam">Selamat Malam, $s</string>
+    <string name="dipinjam">Dipinjam</string>
+    <string name="selesai">Selesai</string>
+    <string name="peminjaman_terbaru">Peminjaman Terbaru</string>
+    <string name="barang_tidak_diketahui">Barang Tidak Diketahui</string>
+    <string name="pending">Tertunda</string>
+    <string name="approved">Disetujui</string>
+    <string name="semua">Semua</string>
+    <string name="pplg">PPLG</string>
+    <string name="lk">LK</string>
+    <string name="tjkt">TJKT</string>
+    <string name="dkv">DKV</string>
+    <string name="ps">PS</string>
+    <string name="katalog_barang">Katalog Barang</string>
+    <string name="pilih_barang_yang_ingin_dipinjam">Pilih barang yang ingin dipinjam</string>
+    <string name="cari_nama_barang">Cari nama barang…</string>
+    <string name="loading_barang">Memuat barang…</string>
+    <string name="item_found">Barang ditemukan</string>
+    <string name="items_found">Barang ditmemukan</string>
+    <string name="gagal_memuat_data">Gagal memuat data</string>
+    <string name="coba_lagi">Coba Lagi</string>
+    <string name="unknown">Tidak diketahui</string>
+    <string name="tersedia">Tersedia</string>
+    <string name="umum">Umum</string>
+    <string name="nama_tidak_tersedia">Nama tidak tersedia</string>
+    <string name="pinjam_sekarang">Pinjam Sekarang</string>
+    <string name="tidak_tersedia">Tidak Tersedia</string>
+    <string name="login">Login</string>
+    <string name="login_berhasil">Login Berhasil</string>
+    <string name="kode_kelas">Kode Kelas</string>
+    <string name="use_class_code">Gunakan kode kelas untuk melanjutkan</string>
+    <string name="example_class_code">Contoh: XIPPLG3</string>
+    <string name="password">Kata sandi</string>
+    <string name="masukkan_password">Masukkan password</string>
+    <string name="enter_class_code_and_password">Masukkan Kode Kelas dan Password</string>
 </resources>

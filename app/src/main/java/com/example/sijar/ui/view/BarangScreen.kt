@@ -1,4 +1,4 @@
-package com.example.sijar.ui.theme.presentation
+package com.example.sijar.ui.view
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -22,11 +22,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.sijar.R
 import com.example.sijar.api.model.data.Item
 import com.example.sijar.api.model.data.JurusanFilter
 import com.example.sijar.api.utils.ApiClient
@@ -46,13 +48,15 @@ fun BarangScreen(
     val selectedJurusan by viewModel.selectedJurusan.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
+    val itemCount = if (filteredList.size == 1) stringResource(R.string.item_found) else stringResource(R.string.items_found)
+
     val daftarJurusan = listOf(
-        JurusanFilter("Semua", null, BluePrimary),
-        JurusanFilter("PPLG", 1, ColorPPLG),
-        JurusanFilter("LK", 2, ColorLK),
-        JurusanFilter("TJKT", 3, ColorTJKT),
-        JurusanFilter("DKV", 4, ColorDKV),
-        JurusanFilter("PS", 5, ColorPS)
+        JurusanFilter(stringResource(R.string.semua), null, BluePrimary),
+        JurusanFilter(stringResource(R.string.pplg), 1, ColorPPLG),
+        JurusanFilter(stringResource(R.string.lk), 2, ColorLK),
+        JurusanFilter(stringResource(R.string.tjkt), 3, ColorTJKT),
+        JurusanFilter(stringResource(R.string.dkv), 4, ColorDKV),
+        JurusanFilter(stringResource(R.string.ps), 5, ColorPS)
     )
 
     PullToRefreshBox(
@@ -74,13 +78,13 @@ fun BarangScreen(
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Text(
-                        text = "Katalog Barang",
+                        text = stringResource(R.string.katalog_barang),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = TextMain
                     )
                     Text(
-                        text = "Pilih barang yang ingin dipinjam",
+                        text = stringResource(R.string.pilih_barang_yang_ingin_dipinjam),
                         fontSize = 13.sp,
                         color = TextMuted,
                         modifier = Modifier.padding(top = 2.dp, bottom = 16.dp)
@@ -92,7 +96,7 @@ fun BarangScreen(
                         onValueChange = { viewModel.onSearchQueryChange(it) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = {
-                            Text("Cari nama barang...", color = TextMuted, fontSize = 14.sp)
+                            Text(stringResource(R.string.cari_nama_barang), color = TextMuted, fontSize = 14.sp)
                         },
                         leadingIcon = {
                             Icon(
@@ -147,7 +151,7 @@ fun BarangScreen(
                         }
                     }
                 }
-                Divider(color = BlueLighter, thickness = 1.dp)
+                HorizontalDivider(color = BlueLighter, thickness = 1.dp)
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -156,7 +160,7 @@ fun BarangScreen(
                 is UiState.Loading -> {
                     item {
                         Text(
-                            text = "Memuat barang...",
+                            text = stringResource(R.string.loading_barang),
                             fontSize = 13.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -174,7 +178,7 @@ fun BarangScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "${filteredList.size} barang ditemukan",
+                                text = itemCount,
                                 fontSize = 13.sp,
                                 color = TextMuted
                             )
@@ -198,7 +202,7 @@ fun BarangScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Gagal memuat data",
+                                text = stringResource(R.string.gagal_memuat_data),
                                 fontWeight = FontWeight.SemiBold,
                                 color = TextMain,
                                 fontSize = 16.sp
@@ -214,7 +218,7 @@ fun BarangScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                             ) {
-                                Text("Coba Lagi", color = White, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.coba_lagi), color = White, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -226,8 +230,8 @@ fun BarangScreen(
 
 @Composable
 fun BarangCard(barang: Item, onClick: () -> Unit) {
-    val status = barang.statusItem?.lowercase() ?: "unknown"
-    val tersedia = status == "tersedia"
+    val status = barang.statusItem?.lowercase() ?: stringResource(R.string.unknown)
+    val tersedia = status == stringResource(R.string.tersedia)
 
     Card(
         modifier = Modifier
@@ -259,8 +263,8 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                         .clip(RoundedCornerShape(6.dp))
                         .background(
                             when (status) {
-                                "tersedia" -> GreenSoft.copy(alpha = 0.92f)
-                                "dipinjam" -> YellowSoft.copy(alpha = 0.92f)
+                                stringResource(R.string.tersedia) -> GreenSoft.copy(alpha = 0.92f)
+                                stringResource(R.string.dipinjam) -> YellowSoft.copy(alpha = 0.92f)
                                 else -> Color(0xFFE53935).copy(alpha = 0.92f)
                             }
                         )
@@ -284,13 +288,13 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = barang.namaItem ?: "Nama tidak tersedia",
+                            text = barang.namaItem ?: stringResource(R.string.nama_tidak_tersedia),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextMain
                         )
                         Text(
-                            text = barang.kategoriJurusan?.namaKategori ?: "Umum",
+                            text = barang.kategoriJurusan?.namaKategori ?: stringResource(R.string.umum),
                             fontSize = 12.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(top = 2.dp)
@@ -299,7 +303,7 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
-                Divider(color = BlueLighter, thickness = 0.5.dp)
+                HorizontalDivider(color = BlueLighter, thickness = 0.5.dp)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Button(
@@ -315,7 +319,7 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                     )
                 ) {
                     Text(
-                        text = if (tersedia) "Pinjam Sekarang" else "Tidak Tersedia",
+                        text = if (tersedia) stringResource(R.string.pinjam_sekarang) else stringResource(R.string.tidak_tersedia),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
                         color = if (tersedia) White else TextMuted
@@ -345,9 +349,13 @@ fun BarangCardSkeleton() {
                     .shimmerEffect()
             )
             Column(modifier = Modifier.padding(16.dp)) {
-                Box(modifier = Modifier.size(width = 160.dp, height = 16.dp).shimmerEffect())
+                Box(modifier = Modifier
+                    .size(width = 160.dp, height = 16.dp)
+                    .shimmerEffect())
                 Spacer(modifier = Modifier.height(8.dp))
-                Box(modifier = Modifier.size(width = 90.dp, height = 12.dp).shimmerEffect())
+                Box(modifier = Modifier
+                    .size(width = 90.dp, height = 12.dp)
+                    .shimmerEffect())
                 Spacer(modifier = Modifier.height(20.dp))
                 Box(modifier = Modifier
                     .fillMaxWidth()

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">SIJAR</string>
+    <string name="sijar_desc">Sistem Informasi Peminjaman Barang</string>
     <string name="menu_home">Home</string>
     <string name="menu_barang">Item</string>
     <string name="menu_pinjam">Borrow</string>
@@ -9,4 +10,38 @@
     <string name="siang">Good Afternoon, $s</string>
     <string name="sore">Good Evening, $s</string>
     <string name="malam">Good Night, $s</string>
+    <string name="dipinjam">Borrowed</string>
+    <string name="selesai">Finished</string>
+    <string name="peminjaman_terbaru">Latest Loan</string>
+    <string name="barang_tidak_diketahui">Unknown Item</string>
+    <string name="pending">Pending</string>
+    <string name="approved">Approved</string>
+    <string name="semua">All</string>
+    <string name="pplg">PPLG</string>
+    <string name="lk">LK</string>
+    <string name="tjkt">TJKT</string>
+    <string name="dkv">DKV</string>
+    <string name="ps">PS</string>
+    <string name="katalog_barang">Goods Catalog</string>
+    <string name="pilih_barang_yang_ingin_dipinjam">Select item you want to borrow</string>
+    <string name="cari_nama_barang">Type item name…</string>
+    <string name="loading_barang">Loading items...</string>
+    <string name="item_found">item found</string>
+    <string name="items_found">items found</string>
+    <string name="gagal_memuat_data">Failed to load data</string>
+    <string name="coba_lagi">Try Again</string>
+    <string name="unknown">unknown</string>
+    <string name="tersedia">Available</string>
+    <string name="umum">General</string>
+    <string name="nama_tidak_tersedia">Name not available</string>
+    <string name="pinjam_sekarang">Borrow now</string>
+    <string name="tidak_tersedia">Not Available</string>
+    <string name="login">Login</string>
+    <string name="login_berhasil">Login Success</string>
+    <string name="kode_kelas">Class Code</string>
+    <string name="use_class_code">Use class code to continue</string>
+    <string name="example_class_code">Example: XIPPLG3</string>
+    <string name="password">Password</string>
+    <string name="masukkan_password">Enter password</string>
+    <string name="enter_class_code_and_password">Masukkan Kode Kelas dan Password</string>
 </resources>

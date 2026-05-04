@@ -1,4 +1,4 @@
-package com.example.sijar.ui.theme.presentation
+package com.example.sijar.ui.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,9 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sijar.R
 import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.viewModel.DashboardViewModel
@@ -47,16 +49,17 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                             .fillMaxWidth()
                             .padding(
                                 top = 18.dp,
-                                bottom = 16.dp),
+                                bottom = 16.dp
+                            ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        StatCard(label = "Dipinjam", count = data.totalDipinjam, modifier = Modifier.weight(1f))
-                        StatCard(label = "Selesai", count = data.totalSelesai, modifier = Modifier.weight(1f))
+                        StatCard(label = stringResource(R.string.dipinjam), count = data.totalDipinjam, modifier = Modifier.weight(1f))
+                        StatCard(label = stringResource(R.string.selesai), count = data.totalSelesai, modifier = Modifier.weight(1f))
                     }
                 }
                 item {
                     Text(
-                        "Peminjaman Terbaru", 
+                        text = stringResource(R.string.peminjaman_terbaru),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground,
@@ -117,7 +120,7 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                peminjaman.item?.namaItem ?: "Barang Tidak Diketahui", 
+                peminjaman.item?.namaItem ?: stringResource(R.string.barang_tidak_diketahui),
                 style = MaterialTheme.typography.titleMedium, 
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -149,8 +152,8 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Badge(
-                    text = peminjaman.statusTujuan ?: "Pending",
-                    color = if (peminjaman.statusTujuan == "Approved") GreenSoft else YellowSoft
+                    text = peminjaman.statusTujuan ?: stringResource(R.string.pending),
+                    color = if (peminjaman.statusTujuan == stringResource(R.string.approved)) GreenSoft else YellowSoft
                 )
             }
         }

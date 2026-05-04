@@ -1,6 +1,5 @@
-package com.example.sijar.ui.theme.presentation
+package com.example.sijar.ui.view
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
@@ -17,20 +16,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sijar.R
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.theme.*
 import com.example.sijar.viewModel.LoginViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+private val EaseInOutSine = CubicBezierEasing(0.37f, 0f, 0.63f, 1f)
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewModel()) {
     val context = LocalContext.current
@@ -40,18 +42,27 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
     var isPasswordVisible by remember { mutableStateOf(false) }
     val loginState by viewModel.loginState.collectAsState()
     val isLoading = loginState is UiState.Loading
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(loginState) {
         when (loginState) {
             is UiState.Success -> {
                 val token = (loginState as UiState.Success).data.token
                 SessionManager.getInstance(context).saveToken(token)
-                Toast.makeText(context, "Login Berhasil", Toast.LENGTH_SHORT).show()
                 onLoginSuccess()
                 viewModel.resetState()
             }
             is UiState.Error -> {
-                Toast.makeText(context, (loginState as UiState.Error).message, Toast.LENGTH_LONG).show()
+                val errorMessage = (loginState as UiState.Error).message
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(
+                        message = errorMessage,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                viewModel.resetState()
             }
             else -> {}
         }
@@ -65,6 +76,24 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
             .background(Sky),
         contentAlignment = Alignment.Center
     ) {
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+        ) { data ->
+            Snackbar(
+                containerColor = if (loginState is UiState.Error)
+                    MaterialTheme.colorScheme.errorContainer
+                else
+                    MaterialTheme.colorScheme.inverseSurface,
+                contentColor = if (loginState is UiState.Error)
+                    MaterialTheme.colorScheme.onErrorContainer
+                else
+                    MaterialTheme.colorScheme.inverseOnSurface,
+                snackbarData = data
+            )
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,7 +109,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(4.dp)) // untuk accent strip
+            Spacer(modifier = Modifier.height(4.dp))
 
             AnimatedVisibility(
                 visible = isVisible,
@@ -98,13 +127,13 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
-                        text = "SIJAR",
+                        text = context.getString(R.string.app_name),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = TextMain
                     )
                     Text(
-                        text = "Sistem Inventaris Peminjaman Barang",
+                        text = context.getString(R.string.sijar_desc),
                         fontSize = 13.sp,
                         color = TextMuted,
                         textAlign = TextAlign.Center,
@@ -119,20 +148,20 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                     ) {
                         Column(modifier = Modifier.padding(24.dp)) {
                             Text(
-                                text = "Masuk",
+                                text = context.getString(R.string.login),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextMain
                             )
                             Text(
-                                text = "Gunakan kode kelas untuk melanjutkan",
+                                text = stringResource(R.string.use_class_code),
                                 fontSize = 13.sp,
                                 color = TextMuted,
                                 modifier = Modifier.padding(top = 2.dp, bottom = 24.dp)
                             )
 
                             Text(
-                                text = "Kode Kelas",
+                                text = stringResource(R.string.kode_kelas),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = TextMain,
@@ -141,7 +170,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             OutlinedTextField(
                                 value = kodeKelas,
                                 onValueChange = { kodeKelas = it },
-                                placeholder = { Text("Contoh: XIPPLG3", color = TextMuted) },
+                                placeholder = { Text(stringResource(R.string.example_class_code), color = TextMuted) },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -157,7 +186,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
-                                text = "Password",
+                                text = stringResource(R.string.password),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = TextMain,
@@ -166,7 +195,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             OutlinedTextField(
                                 value = password,
                                 onValueChange = { password = it },
-                                placeholder = { Text("Masukkan password", color = TextMuted) },
+                                placeholder = { Text(stringResource(R.string.masukkan_password), color = TextMuted) },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -197,11 +226,10 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                                     if (kodeKelas.isNotEmpty() && password.isNotEmpty()) {
                                         viewModel.login(kodeKelas, password)
                                     } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Masukkan Kode Kelas dan Password",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
+                                            snackbarHostState.showSnackbar(context.getString(R.string.enter_class_code_and_password))
+                                        }
                                     }
                                 },
                                 modifier = Modifier
@@ -218,7 +246,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                                     LoadingDots()
                                 } else {
                                     Text(
-                                        text = "Masuk",
+                                        text = context.getString(R.string.login),
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 16.sp,
                                         color = White
@@ -232,7 +260,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
 
             // Footer
             Text(
-                text = "© ${LocalDate.now().year} SIJAR",
+                text = "© ${LocalDate.now().year} ${context.getString(R.string.app_name)}",
                 fontSize = 12.sp,
                 color = TextMuted,
                 textAlign = TextAlign.Center,
@@ -244,7 +272,6 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
 
 @Composable
 fun AnimatedLogo() {
-    // Animasi mengembang dan mengecil
     val pulseAnim = rememberInfiniteTransition(label = "pulse")
     val scale by pulseAnim.animateFloat(
         initialValue = 1f,
@@ -256,7 +283,6 @@ fun AnimatedLogo() {
         label = "scale"
     )
 
-    // Animasi naik turun
     val floatAnim = rememberInfiniteTransition(label = "float")
     val offsetY by floatAnim.animateFloat(
         initialValue = 0f,
@@ -290,7 +316,6 @@ fun AnimatedLogo() {
 
 @Composable
 fun LoadingDots() {
-    val dotCount = 3
     val delays = listOf(0, 180, 360)
 
     Row(
@@ -344,4 +369,3 @@ fun AnimatedDot(delayMs: Int) {
             )
     )
 }
-private val EaseInOutSine = CubicBezierEasing(0.37f, 0f, 0.63f, 1f)

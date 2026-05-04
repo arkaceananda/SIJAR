@@ -1,4 +1,4 @@
-package com.example.sijar.ui.theme.presentation
+package com.example.sijar.ui.view
 
 import androidx.compose.runtime.Composable
 
