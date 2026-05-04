@@ -29,7 +29,6 @@ import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.theme.*
 import com.example.sijar.viewModel.LoginViewModel
-import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 @Composable
@@ -142,7 +141,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             OutlinedTextField(
                                 value = kodeKelas,
                                 onValueChange = { kodeKelas = it },
-                                placeholder = { Text("Contoh: XI447", color = TextMuted) },
+                                placeholder = { Text("Contoh: XIPPLG3", color = TextMuted) },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -233,7 +232,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
 
             // Footer
             Text(
-                text = "© ${LocalDate.now().year} SIJAR — Jurusan Teknologi",
+                text = "© ${LocalDate.now().year} SIJAR",
                 fontSize = 12.sp,
                 color = TextMuted,
                 textAlign = TextAlign.Center,

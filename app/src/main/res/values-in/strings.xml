@@ -5,4 +5,8 @@
     <string name="menu_pinjam">Pinjam</string>
     <string name="menu_riwayat">Riwayat</string>
     <string name="menu_profile">Profil</string>
+    <string name="pagi"> Selamat Pagi, $s</string>
+    <string name="siang">Selamat Siang, $s</string>
+    <string name="sore">Selamat Sore, $S</string>
+    <string name="malam">Selamat Malam, $s</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.example.sijar.ui.theme.presentation
 
-import android.R.attr.label
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,9 +49,9 @@ fun BarangScreen(
     val daftarJurusan = listOf(
         JurusanFilter("Semua", null, BluePrimary),
         JurusanFilter("PPLG", 1, ColorPPLG),
-        JurusanFilter("DKV", 2, ColorDKV),
-        JurusanFilter("LK", 3, ColorLK),
-        JurusanFilter("TJKT", 4, ColorTJKT),
+        JurusanFilter("LK", 2, ColorLK),
+        JurusanFilter("TJKT", 3, ColorTJKT),
+        JurusanFilter("DKV", 4, ColorDKV),
         JurusanFilter("PS", 5, ColorPS)
     )
 
@@ -129,7 +128,7 @@ fun BarangScreen(
                         val isSelected = selectedJurusan == jurusan.id
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(20.dp))
                                 .background(if (isSelected) jurusan.activeColor else Sky)
                                 .border(
                                     width = 1.dp,
