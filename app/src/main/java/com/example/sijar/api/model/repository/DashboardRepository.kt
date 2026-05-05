@@ -21,15 +21,15 @@ class DashboardRepository(private val apiService: ApiService) {
                         if (body != null) {
                             ApiResult.Success(body)
                         } else {
-                            ApiResult.Error(ErrorType.EmptyResponse, "Response body null")
+                            ApiResult.Error(ErrorType.EmptyResponse)
                         }
                     } else {
-                        ApiResult.Error(ErrorType.Unknown, "Error ${response.code()}")
+                        ApiResult.Error(ErrorType.Unknown)
                     }
-                } catch (e: IOException) {
-                    ApiResult.Error(ErrorType.Network, e.message)
-                } catch (e: Exception) {
-                    ApiResult.Error(ErrorType.Unknown, e.message)
+                } catch (_: IOException) {
+                    ApiResult.Error(ErrorType.Network)
+                } catch (_: Exception) {
+                    ApiResult.Error(ErrorType.Unknown)
                 }
             }
         }

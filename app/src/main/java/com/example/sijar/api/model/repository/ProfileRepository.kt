@@ -29,10 +29,10 @@ class ProfileRepository(private val apiService: ApiService) {
                         }
                         ApiResult.Error(type)
                     }
-                } catch (e: IOException) {
-                    ApiResult.Error(ErrorType.Network, e.message)
-                } catch (e: Exception) {
-                    ApiResult.Error(ErrorType.Unknown, e.message)
+                } catch (_: IOException) {
+                    ApiResult.Error(ErrorType.Network)
+                } catch (_: Exception) {
+                    ApiResult.Error(ErrorType.Unknown)
                 }
             }
         }
@@ -47,10 +47,10 @@ class ProfileRepository(private val apiService: ApiService) {
                 } else {
                     ApiResult.Error(ErrorType.Unknown)
                 }
-            } catch (e: IOException) {
-                ApiResult.Error(ErrorType.Network, e.message)
-            } catch (e: Exception) {
-                ApiResult.Error(ErrorType.Unknown, e.message)
+            } catch (_: IOException) {
+                ApiResult.Error(ErrorType.Network)
+            } catch (_: Exception) {
+                ApiResult.Error(ErrorType.Unknown)
             }
         }
     }
@@ -64,10 +64,10 @@ class ProfileRepository(private val apiService: ApiService) {
                 } else {
                     ApiResult.Error(ErrorType.Unknown)
                 }
-            } catch (e: IOException) {
-                ApiResult.Error(ErrorType.Network, e.message)
-            } catch (e: Exception) {
-                ApiResult.Error(ErrorType.Unknown, e.message)
+            } catch (_: IOException) {
+                ApiResult.Error(ErrorType.Network)
+            } catch (_: Exception) {
+                ApiResult.Error(ErrorType.Unknown)
             }
         }
     }

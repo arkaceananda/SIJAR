@@ -16,8 +16,7 @@ class AuthRepository(private val apiService: ApiService) {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response =
-                        apiService.login(AuthRequest(email = kodeKelas, password = password))
+                    val response = apiService.login(AuthRequest(email = kodeKelas, password = password))
 
                     if (response.isSuccessful) {
                         val body = response.body()
@@ -33,14 +32,14 @@ class AuthRepository(private val apiService: ApiService) {
                             in 500..599 -> ErrorType.Server
                             else -> ErrorType.Unknown
                         }
-                        ApiResult.Error(errorType, response.message())
+                        ApiResult.Error(errorType)
                     }
-                } catch (e: IOException) {
-                    ApiResult.Error(ErrorType.Network, e.message)
-                } catch (e: retrofit2.HttpException) {
-                    ApiResult.Error(ErrorType.Server, e.message)
-                } catch (e: Exception) {
-                    ApiResult.Error(ErrorType.Unknown, e.message)
+                } catch (_: IOException) {
+                    ApiResult.Error(ErrorType.Network)
+                } catch (_: retrofit2.HttpException) {
+                    ApiResult.Error(ErrorType.Server)
+                } catch (_: Exception) {
+                    ApiResult.Error(ErrorType.Unknown)
                 }
             }
         }
