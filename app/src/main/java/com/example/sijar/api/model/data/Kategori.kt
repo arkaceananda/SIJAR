@@ -4,5 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class Kategori(
     val id: Int,
-    @SerializedName("nama_kategori") val namaKategori: String
+    @SerializedName("nama_kategori")
+    val namaKategori: String
 )

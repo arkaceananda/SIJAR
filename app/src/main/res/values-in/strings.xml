@@ -1,4 +1,5 @@
 <resources>
+    <!-- App Info & Navigation -->
     <string name="app_name">SIJAR</string>
     <string name="sijar_desc">Sistem Informasi Peminjaman Barang</string>
     <string name="menu_home">Beranda</string>
@@ -6,36 +7,49 @@
     <string name="menu_pinjam">Pinjam</string>
     <string name="menu_riwayat">Riwayat</string>
     <string name="menu_profile">Profil</string>
-    <string name="pagi"> Selamat Pagi, $s</string>
-    <string name="siang">Selamat Siang, $s</string>
-    <string name="sore">Selamat Sore, $S</string>
-    <string name="malam">Selamat Malam, $s</string>
+
+    <!-- Greetings -->
+    <string name="pagi">Selamat Pagi, %s</string>
+    <string name="siang">Selamat Siang, %s</string>
+    <string name="sore">Selamat Sore, %s</string>
+    <string name="malam">Selamat Malam, %s</string>
+
+    <!-- Status & Categories -->
     <string name="dipinjam">Dipinjam</string>
     <string name="selesai">Selesai</string>
-    <string name="peminjaman_terbaru">Peminjaman Terbaru</string>
-    <string name="barang_tidak_diketahui">Barang Tidak Diketahui</string>
     <string name="pending">Tertunda</string>
     <string name="approved">Disetujui</string>
+    <string name="tersedia">Tersedia</string>
+    <string name="tidak_tersedia">Tidak Tersedia</string>
+    <string name="rusak">Rusak</string>
+    <string name="aktif">Aktif</string>
+    <string name="nonaktif">Nonaktif</string>
+
+    <!-- Departments/Majors -->
     <string name="semua">Semua</string>
+    <string name="umum">Umum</string>
     <string name="pplg">PPLG</string>
     <string name="lk">LK</string>
     <string name="tjkt">TJKT</string>
     <string name="dkv">DKV</string>
     <string name="ps">PS</string>
+
+    <!-- Catalog & Items -->
+    <string name="peminjaman_terbaru">Peminjaman Terbaru</string>
     <string name="katalog_barang">Katalog Barang</string>
     <string name="pilih_barang_yang_ingin_dipinjam">Pilih barang yang ingin dipinjam</string>
     <string name="cari_nama_barang">Cari nama barang…</string>
     <string name="loading_barang">Memuat barang…</string>
     <string name="item_found">Barang ditemukan</string>
-    <string name="items_found">Barang ditmemukan</string>
-    <string name="gagal_memuat_data">Gagal memuat data</string>
-    <string name="coba_lagi">Coba Lagi</string>
+    <string name="items_found">Barang ditemukan</string>
+    <string name="barang_tidak_diketahui">Barang Tidak Diketahui</string>
     <string name="unknown">Tidak diketahui</string>
-    <string name="tersedia">Tersedia</string>
-    <string name="umum">Umum</string>
     <string name="nama_tidak_tersedia">Nama tidak tersedia</string>
     <string name="pinjam_sekarang">Pinjam Sekarang</string>
-    <string name="tidak_tersedia">Tidak Tersedia</string>
+    <string name="kode">Kode: %1$s</string>
+    <string name="keperluan">Keperluan: %1$s</string>
+
+    <!-- Authentication -->
     <string name="login">Login</string>
     <string name="login_berhasil">Login Berhasil</string>
     <string name="kode_kelas">Kode Kelas</string>
@@ -44,4 +58,45 @@
     <string name="password">Kata sandi</string>
     <string name="masukkan_password">Masukkan password</string>
     <string name="enter_class_code_and_password">Masukkan Kode Kelas dan Password</string>
+
+    <!-- Profile & Account -->
+    <string name="informasi_pribadi">Informasi Pribadi</string>
+    <string name="nama_lengkap">Nama Lengkap</string>
+    <string name="email">Email</string>
+    <string name="telepon">Telepon</string>
+    <string name="akun">Akun</string>
+    <string name="edit_profil">Edit Profil</string>
+    <string name="ganti_password">Ganti Password</string>
+    <string name="failed_load_profile">Gagal memuat profil</string>
+
+    <!-- Profile Picture -->
+    <string name="foto_profil">Foto Profil</string>
+    <string name="ganti_foto">Ganti Foto</string>
+    <string name="pilih_dari_galeri_atau_kamera">Pilih dari galeri atau kamera</string>
+    <string name="hapus_foto">Hapus Foto</string>
+    <string name="kembali_ke_foto_default">Kembali ke foto default</string>
+    <string name="belum_ada_foto_profil_untuk_dihapus">Belum ada foto profil untuk dihapus.</string>
+
+    <!-- Settings & General Actions -->
+    <string name="pengaturan">Pengaturan</string>
+    <string name="notifikasi">Notifikasi</string>
+    <string name="bahasa">Bahasa</string>
+    <string name="pilih_bahasa">Pilih Bahasa</string>
+    <string name="sesuai_sistem">Sesuai Sistem</string>
+    <string name="gagal_memuat_data">Gagal memuat data</string>
+    <string name="coba_lagi">Coba Lagi</string>
+    <string name="batal">Batal</string>
+
+    <!-- Logout & Exit -->
+    <string name="logout">Keluar</string>
+    <string name="konfirmasi_logout">Konfirmasi Logout</string>
+    <string name="apakah_anda_yakin_ingin_logout">Apakah anda yakin ingin logout?</string>
+    <string name="exit">Keluar</string>
+
+    <!-- ERROR MESSAGE -->
+    <string name="error_unknown">Error tidak diketahui</string>
+    <string name="error_data_not_found">Data tidak ditemukan</string>
+    <string name="error_token_expired">Sesi telah berakhir</string>
+    <string name="error_server">Terjadi kesalahan server</string>
+    <string name="error_no_internet">Tidak ada koneksi internet</string>
 </resources>

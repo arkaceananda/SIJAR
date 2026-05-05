@@ -1,5 +1,8 @@
 package com.example.sijar.viewModel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.response.AuthResponse
@@ -7,35 +10,32 @@ import com.example.sijar.api.model.repository.AuthRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.UiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val repository: AuthRepository = AuthRepository(ApiClient.apiService)
 ) : ViewModel() {
 
-    private val _loginState = MutableStateFlow<UiState<AuthResponse>?>(null)
-    val loginState: StateFlow<UiState<AuthResponse>?> = _loginState
+    var loginState by mutableStateOf<UiState<AuthResponse>?>(null)
+        private set
 
     fun login(kodeKelas: String, password: String) {
         viewModelScope.launch {
-            _loginState.value = UiState.Loading
-            
-            val result = repository.login(kodeKelas, password)
-            
-            when (result) {
+            loginState= UiState.Loading
+
+            loginState = when (val result = repository.login(kodeKelas, password)) {
                 is ApiResult.Success -> {
-                    _loginState.value = UiState.Success(result.data)
+                    UiState.Success(result.data)
                 }
+
                 is ApiResult.Error -> {
-                    _loginState.value = UiState.Error(result.message ?: "Login Gagal")
+                    UiState.Error(result.type)
                 }
             }
         }
     }
 
     fun resetState() {
-        _loginState.value = null
+        loginState = null
     }
 }

@@ -28,11 +28,13 @@ import com.example.sijar.R
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.theme.*
+import com.example.sijar.ui.utils.asString
 import com.example.sijar.viewModel.LoginViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 private val EaseInOutSine = CubicBezierEasing(0.37f, 0f, 0.63f, 1f)
+
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewModel()) {
     val context = LocalContext.current
@@ -40,27 +42,30 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
     var kodeKelas by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
-    val loginState by viewModel.loginState.collectAsState()
+    val loginState = viewModel.loginState
     val isLoading = loginState is UiState.Loading
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val resolvedErrorMessage = (loginState as? UiState.Error)?.asString()
 
     LaunchedEffect(loginState) {
         when (loginState) {
             is UiState.Success -> {
-                val token = (loginState as UiState.Success).data.token
-                SessionManager.getInstance(context).saveToken(token)
+                val response = loginState.data
+                val session = SessionManager.getInstance(context)
+                session.saveToken(response.token)
                 onLoginSuccess()
                 viewModel.resetState()
             }
             is UiState.Error -> {
-                val errorMessage = (loginState as UiState.Error).message
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(
-                        message = errorMessage,
-                        duration = SnackbarDuration.Short
-                    )
+                resolvedErrorMessage?.let { msg ->
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(
+                            message = msg,
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
                 viewModel.resetState()
             }
@@ -94,6 +99,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                 snackbarData = data
             )
         }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()

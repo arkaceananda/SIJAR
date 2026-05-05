@@ -74,7 +74,7 @@ fun SIJARApp() {
                     )
                     AppDestinations.PINJAM -> PinjamBarang()
                     AppDestinations.RIWAYAT -> RiwayatScreen()
-                    AppDestinations.PROFILE -> ProfileScreen(onLogout = {
+                    AppDestinations.PROFILE -> ProfileScreen(onLogoutSuccess = {
                         sessionManager.clearSession()
                         isLoggedIn = false
                     })

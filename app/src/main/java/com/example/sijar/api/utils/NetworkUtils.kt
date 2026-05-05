@@ -3,7 +3,7 @@ package com.example.sijar.api.utils
 import kotlinx.coroutines.delay
 
 /**
- * Fungsi utility untuk melakukan retry pada API call.
+ * Helper Method untuk melakukan retry pada API call.
  * Hanya melakukan retry jika error bersifat sementara (Network atau Server Error).
  */
 suspend fun <T> retryCall(

@@ -1,5 +1,9 @@
 package com.example.sijar.viewModel
 
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.Item
@@ -7,40 +11,46 @@ import com.example.sijar.api.model.repository.ItemRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.UiState
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class BarangViewModel(
     private val repository: ItemRepository = ItemRepository(ApiClient.apiService)
 ) : ViewModel() {
 
-    private val _barangState = MutableStateFlow<UiState<List<Item>>>(UiState.Loading)
-    val barangState: StateFlow<UiState<List<Item>>> = _barangState
+    var barangState by mutableStateOf<UiState<List<Item>>>(UiState.Loading)
+        private set
 
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+    var isRefreshing by mutableStateOf(false)
+        private set
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery
+    /* FOR UI */
+    var searchQuery by mutableStateOf("")
+        private set
+    
+    /* FOR DEBOUNCE */
+    private var debouncedQuery by mutableStateOf("")
 
-    private val _selectedJurusan = MutableStateFlow<Int?>(null)
-    val selectedJurusan: StateFlow<Int?> = _selectedJurusan
+    var selectedJurusan by mutableStateOf<Int?>(null)
+        private set
 
-    val filteredBarang: StateFlow<List<Item>> = combine(
-        _barangState,
-        _searchQuery,
-        _selectedJurusan
-    ) { state, query, jurusanId ->
-        if (state is UiState.Success) {
-            state.data.filter { item ->
-                val matchesQuery = item.namaItem?.contains(query, ignoreCase = true) ?: true
-                val matchesJurusan = if (jurusanId != null) item.kategoriJurusanId == jurusanId else true
-                matchesQuery && matchesJurusan
+    val filteredBarang: List<Item>
+        get() = derivedStateOf {
+            val state = barangState
+            val query = debouncedQuery
+            val jurusanId = selectedJurusan
+
+            if (state is UiState.Success) {
+                state.data.filter { item ->
+                    val matchesQuery = item.namaItem?.contains(query, ignoreCase = true) ?: true
+                    val matchesJurusan = if (jurusanId != null) item.kategoriJurusanId == jurusanId else true
+                    matchesQuery && matchesJurusan
+                }
+            } else {
+                emptyList()
             }
-        } else {
-            emptyList()
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }.value
 
     init {
         fetchBarang()
@@ -48,35 +58,43 @@ class BarangViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _isRefreshing.value = true
+            isRefreshing = true
             fetchBarang()
-            _isRefreshing.value = false
+            isRefreshing = false
         }
     }
 
     private fun fetchBarang() {
         viewModelScope.launch {
-            // Only set to Loading if not currently refreshing (to allow skeleton on first load)
-            if (!_isRefreshing.value) {
-                _barangState.value = UiState.Loading
+            if (!isRefreshing) {
+                barangState = UiState.Loading
             }
-            
-            when (val result = repository.getItems()) {
+
+            barangState = when (val result = repository.getItems()) {
                 is ApiResult.Success -> {
-                    _barangState.value = UiState.Success(result.data.data)
+                    UiState.Success(result.data.data)
                 }
+
                 is ApiResult.Error -> {
-                    _barangState.value = UiState.Error(result.message ?: "An unexpected error occurred")
+                    UiState.Error(result.type)
                 }
             }
         }
     }
 
+    private var searchJob: Job? = null
     fun onSearchQueryChange(newQuery: String) {
-        _searchQuery.value = newQuery
+        searchQuery = newQuery
+        
+        searchJob?.cancel()
+
+        searchJob = viewModelScope.launch {
+            delay(300L)
+            debouncedQuery = newQuery
+        }
     }
 
     fun onJurusanSelected(jurusanId: Int?) {
-        _selectedJurusan.value = jurusanId
+        selectedJurusan = jurusanId
     }
 }

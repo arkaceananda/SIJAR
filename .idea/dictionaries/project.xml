@@ -1,17 +1,31 @@
 <component name="ProjectDictionaryState">
   <dictionary name="project">
     <words>
+      <w>akun</w>
+      <w>bukti</w>
       <w>daftar</w>
+      <w>deskripsi</w>
+      <w>dipinjam</w>
       <w>foto</w>
+      <w>informasi</w>
+      <w>jenis</w>
       <w>jurusan</w>
+      <w>kategori</w>
       <w>kelas</w>
       <w>keperluan</w>
+      <w>kirim</w>
       <w>peminjaman</w>
       <w>pinjam</w>
+      <w>pribadi</w>
       <w>riwayat</w>
+      <w>rusak</w>
+      <w>selesai</w>
       <w>snackbar</w>
       <w>tanggal</w>
+      <w>telepon</w>
+      <w>terbaru</w>
       <w>tersedia</w>
+      <w>waktu</w>
     </words>
   </dictionary>
 </component>

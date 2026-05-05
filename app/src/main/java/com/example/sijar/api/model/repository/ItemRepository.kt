@@ -20,10 +20,10 @@ class ItemRepository(private val apiService: ApiService) {
                         if (body != null) {
                             ApiResult.Success(body)
                         } else {
-                            ApiResult.Error(ErrorType.EmptyResponse, "Data barang kosong")
+                            ApiResult.Error(ErrorType.EmptyResponse)
                         }
                     } else {
-                        ApiResult.Error(ErrorType.Unknown, "Error ${response.code()}")
+                        ApiResult.Error(ErrorType.Unknown)
                     }
                 } catch (e: IOException) {
                     ApiResult.Error(ErrorType.Network, e.message)

@@ -7,7 +7,7 @@ import java.util.Locale
 
 fun greetingTime(): String {
     val now = LocalDateTime.now()
-    val locale = Locale("id", "ID")
+    val locale = Locale.getDefault()
 
     return now.format(DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", locale))
 }

@@ -24,7 +24,7 @@ class AuthRepository(private val apiService: ApiService) {
                         if (body != null) {
                             ApiResult.Success(body)
                         } else {
-                            ApiResult.Error(ErrorType.Unknown, "Response Body Kosong")
+                            ApiResult.Error(ErrorType.Unknown)
                         }
                     } else {
                         val errorType = when (response.code()) {

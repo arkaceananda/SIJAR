@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,6 +35,7 @@ import com.example.sijar.api.model.data.JurusanFilter
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.theme.*
+import com.example.sijar.ui.utils.asString
 import com.example.sijar.viewModel.BarangViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,11 +44,11 @@ fun BarangScreen(
     viewModel: BarangViewModel = viewModel(),
     onItemClick: (Int) -> Unit
 ) {
-    val uiState by viewModel.barangState.collectAsState()
-    val filteredList by viewModel.filteredBarang.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedJurusan by viewModel.selectedJurusan.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val uiState = viewModel.barangState
+    val filteredList = viewModel.filteredBarang
+    val searchQuery = viewModel.searchQuery
+    val selectedJurusan = viewModel.selectedJurusan
+    val isRefreshing = viewModel.isRefreshing
 
     val itemCount = if (filteredList.size == 1) stringResource(R.string.item_found) else stringResource(R.string.items_found)
 
@@ -75,6 +77,7 @@ fun BarangScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(White)
+                        .statusBarsPadding()
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Text(
@@ -208,9 +211,10 @@ fun BarangScreen(
                                 fontSize = 16.sp
                             )
                             Text(
-                                text = (uiState as UiState.Error).message,
+                                text = uiState.asString(),
                                 color = TextMuted,
                                 fontSize = 13.sp,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
                             )
                             Button(
@@ -232,6 +236,20 @@ fun BarangScreen(
 fun BarangCard(barang: Item, onClick: () -> Unit) {
     val status = barang.statusItem?.lowercase() ?: stringResource(R.string.unknown)
     val tersedia = status == stringResource(R.string.tersedia)
+
+    val badgeColor = when (status) {
+        "tersedia" -> GreenSoft.copy(alpha = 0.92f)
+        "dipinjam" -> YellowSoft.copy(alpha = 0.92f)
+        "rusak"    -> Color(0xFFE53935).copy(alpha = 0.92f)
+        else       -> Color.Gray.copy(alpha = 0.92f)
+    }
+
+    val statusDisplayText = when (status) {
+        "tersedia" -> stringResource(R.string.tersedia)
+        "dipinjam" -> stringResource(R.string.dipinjam)
+        "rusak"    -> stringResource(R.string.rusak)
+        else       -> stringResource(R.string.unknown)
+    }
 
     Card(
         modifier = Modifier
@@ -261,17 +279,11 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                         .align(Alignment.TopEnd)
                         .padding(12.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            when (status) {
-                                stringResource(R.string.tersedia) -> GreenSoft.copy(alpha = 0.92f)
-                                stringResource(R.string.dipinjam) -> YellowSoft.copy(alpha = 0.92f)
-                                else -> Color(0xFFE53935).copy(alpha = 0.92f)
-                            }
-                        )
+                        .background(badgeColor)
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = status.uppercase(),
+                        text = statusDisplayText.uppercase(),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = White,

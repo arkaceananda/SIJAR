@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-class PeminjamanRepository(private val apiService: ApiService) {
+class DashboardRepository(private val apiService: ApiService) {
 
     suspend fun getDashboardData(token: String): ApiResult<DashboardResponse> {
         return withContext(Dispatchers.IO) {
