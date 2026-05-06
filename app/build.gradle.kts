@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended.android)
     implementation(libs.retrofit)
     implementation(libs.logging.interceptor)
-    implementation(libs.androidx.paging.z)
     implementation(libs.converter.gson)
     implementation(libs.androidx.appcompat)
     implementation(libs.glide)

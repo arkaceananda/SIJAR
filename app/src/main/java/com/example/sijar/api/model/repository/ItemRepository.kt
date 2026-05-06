@@ -1,5 +1,6 @@
 package com.example.sijar.api.model.repository
 
+import android.util.Log
 import com.example.sijar.api.model.data.response.ItemResponse
 import com.example.sijar.api.service.ApiService
 import com.example.sijar.api.utils.ApiResult
@@ -10,11 +11,14 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class ItemRepository(private val apiService: ApiService) {
-    suspend fun getItems(): ApiResult<ItemResponse> {
+    suspend fun getItems(
+        kategoriId: Int? = null,
+        search: String? = null
+    ): ApiResult<ItemResponse> {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.getItems()
+                    val response = apiService.getItems(kategoriId, search)
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) {
@@ -23,11 +27,12 @@ class ItemRepository(private val apiService: ApiService) {
                             ApiResult.Error(ErrorType.EmptyResponse)
                         }
                     } else {
-                        ApiResult.Error(ErrorType.Unknown)
+                        val errorBody = response.errorBody()?.string()
+                        ApiResult.Error(ErrorType.Unknown, errorBody)
                     }
-                } catch (_: IOException) {
+                } catch (e: IOException) {
                     ApiResult.Error(ErrorType.Network)
-                } catch (_: Exception) {
+                } catch (e: Exception) {
                     ApiResult.Error(ErrorType.Unknown)
                 }
             }

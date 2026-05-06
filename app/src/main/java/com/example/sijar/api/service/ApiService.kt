@@ -8,14 +8,26 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
-    @POST("login")
+    @POST("auth/login")
     suspend fun login(@Body request: AuthRequest): Response<AuthResponse>
 
     @GET("barang")
-    suspend fun getItems(): Response<ItemResponse>
+    suspend fun getItems(
+        @Query("kategori_jurusan_id") kategoriId: Int?,
+        @Query("search") search: String?
+    ): Response<ItemResponse>
 
     @GET("peminjaman")
     suspend fun getPeminjaman(@Header("Authorization") token: String): Response<PeminjamanResponse>
+
+    @Multipart
+    @POST("peminjaman-kirim")
+    suspend fun createPeminjaman(
+        @Header("Authorization") token: String,
+        @Part("keperluan") keperluan: RequestBody,
+        @Part("item_id") itemId: RequestBody,
+        @Part bukti: MultipartBody.Part?
+    ): Response<CreatePeminjamanResponse>
 
     @GET("homepage")
     suspend fun getDashboard(@Header("Authorization") token: String): Response<DashboardResponse>
@@ -35,12 +47,9 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<ProfileResponse>
 
-    @Multipart
-    @POST("peminjaman-kirim")
-    suspend fun createPeminjaman(
-        @Header("Authorization") token: String,
-        @Part("keperluan") keperluan: RequestBody,
-        @Part("item_id") itemId: RequestBody,
-        @Part bukti: MultipartBody.Part?
-    ): Response<CreatePeminjamanResponse>
+//    @PUT("password")
+//    suspend fun updatePassword(
+//        @Header("Authorization") token: String,
+//        @Body request: UpdatePasswordRequest
+//    ): Response<UpdatePasswordResponse>
 }

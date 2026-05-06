@@ -50,15 +50,19 @@ fun BarangScreen(
     val selectedJurusan = viewModel.selectedJurusan
     val isRefreshing = viewModel.isRefreshing
 
-    val itemCount = if (filteredList.size == 1) stringResource(R.string.item_found) else stringResource(R.string.items_found)
+    val itemCountText = when {
+        filteredList.isEmpty() -> stringResource(R.string.catalog_no_items_found)
+        filteredList.size == 1 -> "${filteredList.size} ${stringResource(R.string.catalog_item_found)}"
+        else -> "${filteredList.size} ${stringResource(R.string.catalog_items_found)}"
+    }
 
     val daftarJurusan = listOf(
-        JurusanFilter(stringResource(R.string.semua), null, BluePrimary),
-        JurusanFilter(stringResource(R.string.pplg), 1, ColorPPLG),
-        JurusanFilter(stringResource(R.string.lk), 2, ColorLK),
-        JurusanFilter(stringResource(R.string.tjkt), 3, ColorTJKT),
-        JurusanFilter(stringResource(R.string.dkv), 4, ColorDKV),
-        JurusanFilter(stringResource(R.string.ps), 5, ColorPS)
+        JurusanFilter(stringResource(R.string.category_all), null, BluePrimary),
+        JurusanFilter(stringResource(R.string.category_pplg), 1, ColorPPLG),
+        JurusanFilter(stringResource(R.string.category_lk), 2, ColorLK),
+        JurusanFilter(stringResource(R.string.category_tjkt), 3, ColorTJKT),
+        JurusanFilter(stringResource(R.string.category_dkv), 4, ColorDKV),
+        JurusanFilter(stringResource(R.string.category_ps), 5, ColorPS)
     )
 
     PullToRefreshBox(
@@ -81,13 +85,13 @@ fun BarangScreen(
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.katalog_barang),
+                        text = stringResource(R.string.catalog_title_goods),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = TextMain
                     )
                     Text(
-                        text = stringResource(R.string.pilih_barang_yang_ingin_dipinjam),
+                        text = stringResource(R.string.catalog_label_select_item),
                         fontSize = 13.sp,
                         color = TextMuted,
                         modifier = Modifier.padding(top = 2.dp, bottom = 16.dp)
@@ -99,7 +103,7 @@ fun BarangScreen(
                         onValueChange = { viewModel.onSearchQueryChange(it) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = {
-                            Text(stringResource(R.string.cari_nama_barang), color = TextMuted, fontSize = 14.sp)
+                            Text(stringResource(R.string.catalog_hint_search), color = TextMuted, fontSize = 14.sp)
                         },
                         leadingIcon = {
                             Icon(
@@ -163,7 +167,7 @@ fun BarangScreen(
                 is UiState.Loading -> {
                     item {
                         Text(
-                            text = stringResource(R.string.loading_barang),
+                            text = stringResource(R.string.catalog_state_loading),
                             fontSize = 13.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -181,18 +185,47 @@ fun BarangScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = itemCount,
+                                text = itemCountText,
                                 fontSize = 13.sp,
                                 color = TextMuted
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
-                    items(filteredList) { barang ->
-                        BarangCard(
-                            barang = barang,
-                            onClick = { onItemClick(barang.id) }
-                        )
+
+                    if (filteredList.isEmpty()) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 48.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.search_no_results_title),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextMain,
+                                    fontSize = 16.sp
+                                )
+                                Text(
+                                    text = if (searchQuery.isNotEmpty()) 
+                                        stringResource(R.string.search_no_results_description)
+                                    else
+                                        stringResource(R.string.search_no_items_in_category),
+                                    color = TextMuted,
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp, start = 24.dp, end = 24.dp)
+                                )
+                            }
+                        }
+                    } else {
+                        items(filteredList) { barang ->
+                            BarangCard(
+                                barang = barang,
+                                onClick = { onItemClick(barang.id) }
+                            )
+                        }
                     }
                 }
 
@@ -205,7 +238,7 @@ fun BarangScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = stringResource(R.string.gagal_memuat_data),
+                                text = stringResource(R.string.error_to_load_data),
                                 fontWeight = FontWeight.SemiBold,
                                 color = TextMain,
                                 fontSize = 16.sp
@@ -222,7 +255,7 @@ fun BarangScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                             ) {
-                                Text(stringResource(R.string.coba_lagi), color = White, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.action_try_again), color = White, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -234,8 +267,8 @@ fun BarangScreen(
 
 @Composable
 fun BarangCard(barang: Item, onClick: () -> Unit) {
-    val status = barang.statusItem?.lowercase() ?: stringResource(R.string.unknown)
-    val tersedia = status == stringResource(R.string.tersedia)
+    val status = barang.statusItem?.lowercase() ?: stringResource(R.string.item_label_unknown)
+    val tersedia = status == stringResource(R.string.status_available)
 
     val badgeColor = when (status) {
         "tersedia" -> GreenSoft.copy(alpha = 0.92f)
@@ -245,10 +278,10 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
     }
 
     val statusDisplayText = when (status) {
-        "tersedia" -> stringResource(R.string.tersedia)
-        "dipinjam" -> stringResource(R.string.dipinjam)
-        "rusak"    -> stringResource(R.string.rusak)
-        else       -> stringResource(R.string.unknown)
+        "tersedia" -> stringResource(R.string.status_available)
+        "dipinjam" -> stringResource(R.string.status_borrowed)
+        "rusak"    -> stringResource(R.string.status_damaged)
+        else       -> stringResource(R.string.item_label_unknown)
     }
 
     Card(
@@ -300,13 +333,13 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = barang.namaItem ?: stringResource(R.string.nama_tidak_tersedia),
+                            text = barang.namaItem ?: stringResource(R.string.item_label_name_not_available),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextMain
                         )
                         Text(
-                            text = barang.kategoriJurusan?.namaKategori ?: stringResource(R.string.umum),
+                            text = barang.kategoriJurusan?.namaKategori ?: stringResource(R.string.category_general),
                             fontSize = 12.sp,
                             color = TextMuted,
                             modifier = Modifier.padding(top = 2.dp)
@@ -331,7 +364,7 @@ fun BarangCard(barang: Item, onClick: () -> Unit) {
                     )
                 ) {
                     Text(
-                        text = if (tersedia) stringResource(R.string.pinjam_sekarang) else stringResource(R.string.tidak_tersedia),
+                        text = if (tersedia) stringResource(R.string.action_borrow_now) else stringResource(R.string.status_unavailable),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
                         color = if (tersedia) White else TextMuted

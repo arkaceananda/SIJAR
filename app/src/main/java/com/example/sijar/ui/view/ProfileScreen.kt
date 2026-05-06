@@ -113,23 +113,23 @@ fun ProfileScreen(
 
                         /* PERSONAL INFORMATION */
                         item {
-                            SectionLabel(stringResource(R.string.informasi_pribadi))
+                            SectionLabel(stringResource(R.string.profile_title_personal_info))
                             ModernCard {
                                 InfoRow(
                                     icon = Icons.Outlined.Person,
-                                    label = stringResource(R.string.nama_lengkap),
+                                    label = stringResource(R.string.profile_label_full_name),
                                     value = user.name
                                 )
                                 RowDivider()
                                 InfoRow(
                                     icon = Icons.Outlined.Email,
-                                    label = stringResource(R.string.email),
+                                    label = stringResource(R.string.profile_label_email),
                                     value = user.email
                                 )
                                 RowDivider()
                                 InfoRow(
                                     icon = Icons.Outlined.Phone,
-                                    label = stringResource(R.string.telepon),
+                                    label = stringResource(R.string.profile_label_telephone),
                                     value = user.telepon ?: "-"
                                 )
                             }
@@ -139,7 +139,7 @@ fun ProfileScreen(
 
                         /* SETTING */
                         item {
-                            SectionLabel(stringResource(R.string.pengaturan))
+                            SectionLabel(stringResource(R.string.settings_title))
                             ModernCard {
                                 LanguageRow(
                                     currentLanguage = language,
@@ -157,18 +157,18 @@ fun ProfileScreen(
 
                         /* AKUN */
                         item {
-                            SectionLabel(stringResource(R.string.akun))
+                            SectionLabel(stringResource(R.string.profile_label_account))
                             ModernCard {
                                 ActionRow(
                                     icon = Icons.Outlined.Edit,
-                                    label = stringResource(R.string.edit_profil),
+                                    label = stringResource(R.string.action_edit_profile),
                                     iconTint = BluePrimary,
                                     onClick = { /* Navigate */ }
                                 )
                                 RowDivider()
                                 ActionRow(
                                     icon = Icons.Outlined.Lock,
-                                    label = stringResource(R.string.ganti_password),
+                                    label = stringResource(R.string.action_change_password),
                                     iconTint = BluePrimary,
                                     onClick = { /* Navigate */ }
                                 )
@@ -182,7 +182,7 @@ fun ProfileScreen(
                             ModernCard {
                                 ActionRow(
                                     icon = Icons.AutoMirrored.Outlined.Logout,
-                                    label = stringResource(R.string.logout),
+                                    label = stringResource(R.string.action_logout),
                                     iconTint = MaterialTheme.colorScheme.error,
                                     labelColor = MaterialTheme.colorScheme.error,
                                     showChevron = false,
@@ -199,9 +199,9 @@ fun ProfileScreen(
                         AlertDialog(
                             onDismissRequest = { showLogoutDialog = false },
                             title = { Text(
-                                stringResource(R.string.konfirmasi_logout),
+                                stringResource(R.string.dialog_title_logout),
                                 fontWeight = FontWeight.Bold) },
-                            text = { Text(stringResource(R.string.apakah_anda_yakin_ingin_logout)) },
+                            text = { Text(stringResource(R.string.dialog_msg_logout)) },
                             confirmButton = {
                                 TextButton(
                                     onClick = {
@@ -210,7 +210,7 @@ fun ProfileScreen(
                                     }
                                 ) {
                                     Text(
-                                        stringResource(R.string.exit),
+                                        stringResource(R.string.action_exit),
                                         color = MaterialTheme.colorScheme.error,
                                         fontWeight = FontWeight.Bold)
                                 }
@@ -219,7 +219,7 @@ fun ProfileScreen(
                                 TextButton(
                                     onClick = { showLogoutDialog = false }
                                 ) {
-                                    Text(stringResource(R.string.batal), color = TextMain)
+                                    Text(stringResource(R.string.action_cancel), color = TextMain)
                                 }
                             },
                             containerColor = Color.White,
@@ -234,7 +234,7 @@ fun ProfileScreen(
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = stringResource(R.string.failed_load_profile),
+                            text = stringResource(R.string.profile_error_load),
                             fontWeight = FontWeight.SemiBold,
                             color = TextMain
                         )
@@ -250,7 +250,7 @@ fun ProfileScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Text(stringResource(R.string.coba_lagi), color = White)
+                            Text(stringResource(R.string.action_try_again), color = White)
                         }
                     }
                 }
@@ -283,7 +283,7 @@ fun ProfileHeader(
                     .navigationBarsPadding()
             ) {
                 Text(
-                    text = stringResource(R.string.foto_profil),
+                    text = stringResource(R.string.profile_pic_title),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = TextMain,
@@ -318,8 +318,8 @@ fun ProfileHeader(
                         )
                     }
                     Column {
-                        Text(stringResource(R.string.ganti_foto), fontWeight = FontWeight.Medium, color = TextMain, fontSize = 15.sp)
-                        Text(stringResource(R.string.pilih_dari_galeri_atau_kamera), fontSize = 12.sp, color = TextMuted)
+                        Text(stringResource(R.string.action_change_picture), fontWeight = FontWeight.Medium, color = TextMain, fontSize = 15.sp)
+                        Text(stringResource(R.string.profile_pic_msg_select_source), fontSize = 12.sp, color = TextMuted)
                     }
                 }
 
@@ -360,15 +360,15 @@ fun ProfileHeader(
                     }
                     Column {
                         Text(
-                            stringResource(R.string.hapus_foto),
+                            stringResource(R.string.action_delete_picture),
                             fontWeight = FontWeight.Medium,
                             color = if (hasPhoto) MaterialTheme.colorScheme.error
                             else TextMuted.copy(alpha = 0.4f),
                             fontSize = 15.sp
                         )
                         Text(
-                            if (hasPhoto) stringResource(R.string.kembali_ke_foto_default)
-                            else stringResource(R.string.belum_ada_foto_profil_untuk_dihapus),
+                            if (hasPhoto) stringResource(R.string.action_default_picture)
+                            else stringResource(R.string.profile_pic_msg_no_picture),
                             fontSize = 12.sp,
                             color = TextMuted.copy(alpha = if (hasPhoto) 1f else 0.5f)
                         )
@@ -401,7 +401,7 @@ fun ProfileHeader(
                 if (hasPhoto) {
                     AsyncImage(
                         model = photoUrl,
-                        contentDescription = stringResource(R.string.foto_profil),
+                        contentDescription = stringResource(R.string.profile_pic_title),
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -434,7 +434,7 @@ fun ProfileHeader(
                 ) {
                     Icon(
                         Icons.Filled.CameraAlt,
-                        contentDescription = stringResource(R.string.ganti_foto),
+                        contentDescription = stringResource(R.string.action_change_picture),
                         tint = BluePrimary,
                         modifier = Modifier.size(13.dp)
                     )
@@ -590,9 +590,9 @@ fun NotifRow(isEnabled: Boolean, onToggle: (Boolean) -> Unit) {
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(stringResource(R.string.notifikasi), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextMain)
+            Text(stringResource(R.string.settings_label_notification), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextMain)
             Text(
-                if (isEnabled) stringResource(R.string.aktif) else stringResource(R.string.nonaktif),
+                if (isEnabled) stringResource(R.string.status_active) else stringResource(R.string.status_inactive),
                 fontSize = 11.sp,
                 color = if (isEnabled) GreenSoft else TextMuted
             )
@@ -617,10 +617,10 @@ fun LanguageRow(currentLanguage: String, onLanguageChange: (String) -> Unit) {
     val languages = listOf(
         Triple("in", "Indonesia", "🇮🇩"),
         Triple("en", "English", "🇺🇸"),
-        Triple("system", stringResource(R.string.sesuai_sistem), "⚙️")
+        Triple("system", stringResource(R.string.settings_label_system_default), "⚙️")
     )
 
-    val currentLabel = languages.find { it.first == currentLanguage }?.second ?: stringResource(R.string.sesuai_sistem)
+    val currentLabel = languages.find { it.first == currentLanguage }?.second ?: stringResource(R.string.settings_label_system_default)
     val currentFlag  = languages.find { it.first == currentLanguage }?.third ?: "⚙️"
 
     /* BOTTOM SHEET SELECT LANGUAGE */
@@ -641,7 +641,7 @@ fun LanguageRow(currentLanguage: String, onLanguageChange: (String) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.pilih_bahasa),
+                    text = stringResource(R.string.action_select_language),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextMuted,
@@ -752,7 +752,7 @@ fun LanguageRow(currentLanguage: String, onLanguageChange: (String) -> Unit) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = stringResource(R.string.batal),
+                            text = stringResource(R.string.action_cancel),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = BluePrimary
@@ -787,7 +787,7 @@ fun LanguageRow(currentLanguage: String, onLanguageChange: (String) -> Unit) {
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(stringResource(R.string.bahasa), fontSize = 11.sp, color = TextMuted)
+            Text(stringResource(R.string.settings_label_language), fontSize = 11.sp, color = TextMuted)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)

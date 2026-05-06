@@ -69,10 +69,12 @@ class BarangViewModel(
             if (!isRefreshing) {
                 barangState = UiState.Loading
             }
+            val result = repository.getItems(selectedJurusan, debouncedQuery)
 
-            barangState = when (val result = repository.getItems()) {
+            barangState = when (result) {
                 is ApiResult.Success -> {
-                    UiState.Success(result.data.data)
+                    val listBarang = result.data.paginator.barangList
+                    UiState.Success(listBarang)
                 }
 
                 is ApiResult.Error -> {
@@ -91,10 +93,12 @@ class BarangViewModel(
         searchJob = viewModelScope.launch {
             delay(300L)
             debouncedQuery = newQuery
+            fetchBarang()
         }
     }
 
     fun onJurusanSelected(jurusanId: Int?) {
         selectedJurusan = jurusanId
+        fetchBarang()
     }
 }

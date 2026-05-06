@@ -19,5 +19,5 @@ data class Item(
     @SerializedName("foto_barang")
     val fotoBarang: String? = null,
     @SerializedName("kategori_jurusan")
-    val kategoriJurusan: Kategori? = null
+    val kategoriJurusan: KategoriJurusan? = null
 )

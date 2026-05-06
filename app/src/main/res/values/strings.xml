@@ -1,102 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Info & Navigation -->
     <string name="app_name">SIJAR</string>
     <string name="sijar_desc">Sistem Informasi Peminjaman Barang</string>
-    <string name="menu_home">Home</string>
-    <string name="menu_barang">Item</string>
-    <string name="menu_pinjam">Borrow</string>
-    <string name="menu_riwayat">History</string>
-    <string name="menu_profile">Profile</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_item">Barang</string>
+    <string name="nav_borrow">Pinjam</string>
+    <string name="nav_history">Riwayat</string>
+    <string name="nav_profile">Profil</string>
 
     <!-- Greetings -->
-    <string name="pagi">Good Morning, %s</string>
-    <string name="siang">Good Afternoon, %s</string>
-    <string name="sore">Good Evening, %s</string>
-    <string name="malam">Good Night, %s</string>
+    <string name="greeting_morning">Selamat Pagi, %s</string>
+    <string name="greeting_afternoon">Selamat Siang, %s</string>
+    <string name="greeting_evening">Selamat Sore, %s</string>
+    <string name="greeting_night">Selamat Malam, %s</string>
 
     <!-- Status & Categories -->
-    <string name="dipinjam">Borrowed</string>
-    <string name="selesai">Finished</string>
-    <string name="pending">Pending</string>
-    <string name="approved">Approved</string>
-    <string name="tersedia">Available</string>
-    <string name="tidak_tersedia">Not Available</string>
-    <string name="rusak">damaged</string>
-    <string name="aktif">Active</string>
-    <string name="nonaktif">Non-active</string>
+    <string name="status_borrowed">Dipinjam</string>
+    <string name="status_finished">Selesai</string>
+    <string name="status_pending">Tertunda</string>
+    <string name="status_approved">Disetujui</string>
+    <string name="status_available">Tersedia</string>
+    <string name="status_unavailable">Tidak Tersedia</string>
+    <string name="status_damaged">Rusak</string>
+    <string name="status_active">Aktif</string>
+    <string name="status_inactive">Nonaktif</string>
 
     <!-- Departments/Majors -->
-    <string name="semua">All</string>
-    <string name="umum">General</string>
-    <string name="pplg">PPLG</string>
-    <string name="lk">LK</string>
-    <string name="tjkt">TJKT</string>
-    <string name="dkv">DKV</string>
-    <string name="ps">PS</string>
+    <string name="category_all">Semua</string>
+    <string name="category_general">Umum</string>
+    <string name="category_pplg">PPLG</string>
+    <string name="category_lk">LK</string>
+    <string name="category_tjkt">TJKT</string>
+    <string name="category_dkv">DKV</string>
+    <string name="category_ps">PS</string>
 
     <!-- Catalog & Items -->
-    <string name="peminjaman_terbaru">Latest Loan</string>
-    <string name="katalog_barang">Goods Catalog</string>
-    <string name="pilih_barang_yang_ingin_dipinjam">Select item you want to borrow</string>
-    <string name="cari_nama_barang">Type item name…</string>
-    <string name="loading_barang">Loading items…</string>
-    <string name="item_found">item found</string>
-    <string name="items_found">items found</string>
-    <string name="barang_tidak_diketahui">Unknown Item</string>
-    <string name="unknown">unknown</string>
-    <string name="nama_tidak_tersedia">Name not available</string>
-    <string name="pinjam_sekarang">Borrow now</string>
-    <string name="kode">Code: %1$s</string>
-    <string name="keperluan">Purpose: %1$s</string>
+    <string name="catalog_title_latest_loan">Peminjaman Terbaru</string>
+    <string name="catalog_title_goods">Katalog Barang</string>
+    <string name="catalog_label_select_item">Pilih barang yang ingin dipinjam</string>
+    <string name="catalog_hint_search">Cari nama barang…</string>
+    <string name="catalog_state_loading">Memuat barang…</string>
+    <string name="catalog_item_found">barang ditemukan</string>
+    <string name="catalog_items_found">barang ditemukan</string>
+    <string name="catalog_no_items_found">0 barang ditemukan</string>
+    <string name="item_label_unknown_item">Barang Tidak Diketahui</string>
+    <string name="item_label_unknown">Tidak diketahui</string>
+    <string name="item_label_name_not_available">Nama tidak tersedia</string>
+    <string name="action_borrow_now">Pinjam Sekarang</string>
+    <string name="item_label_code">Kode: %1$s</string>
+    <string name="item_label_purpose">Keperluan: %1$s</string>
+
+    <!-- Search Results -->
+    <string name="search_no_results_title">Barang Tidak Ditemukan</string>
+    <string name="search_no_results_description">Tidak ada barang yang sesuai dengan pencarian Anda. Coba gunakan kata kunci lain.</string>
+    <string name="search_no_items_in_category">Tidak ada barang dalam kategori ini</string>
 
     <!-- Authentication -->
-    <string name="login">Login</string>
-    <string name="login_berhasil">Login Success</string>
-    <string name="kode_kelas">Class Code</string>
-    <string name="use_class_code">Use class code to continue</string>
-    <string name="example_class_code">Example: XIPPLG3</string>
-    <string name="password">Password</string>
-    <string name="masukkan_password">Enter password</string>
-    <string name="enter_class_code_and_password">Enter Class Code and Password</string>
+    <string name="auth_title_login">Login</string>
+    <string name="auth_msg_login_success">Login Berhasil</string>
+    <string name="auth_label_class_code">Kode Kelas</string>
+    <string name="auth_msg_use_class_code">Gunakan kode kelas untuk melanjutkan</string>
+    <string name="auth_hint_example_class_code">Contoh: XIPPLG3</string>
+    <string name="auth_label_password">Kata sandi</string>
+    <string name="auth_hint_password">Masukkan password</string>
+    <string name="auth_msg_enter_credentials">Masukkan Kode Kelas dan Password</string>
 
     <!-- Profile & Account -->
-    <string name="informasi_pribadi">Personal Information</string>
-    <string name="nama_lengkap">Full Name</string>
-    <string name="email">Email</string>
-    <string name="telepon">Telephone</string>
-    <string name="akun">Account</string>
-    <string name="edit_profil">Edit Profile</string>
-    <string name="ganti_password">Change Password</string>
-    <string name="failed_load_profile">Failed to load profile</string>
+    <string name="profile_title_personal_info">Informasi Pribadi</string>
+    <string name="profile_label_full_name">Nama Lengkap</string>
+    <string name="profile_label_email">Email</string>
+    <string name="profile_label_telephone">Telepon</string>
+    <string name="profile_label_account">Akun</string>
+    <string name="action_edit_profile">Edit Profil</string>
+    <string name="action_change_password">Ganti Password</string>
+    <string name="profile_error_load">Gagal memuat profil</string>
 
     <!-- Profile Picture -->
-    <string name="foto_profil">Profile Picture</string>
-    <string name="ganti_foto">Change Picture</string>
-    <string name="pilih_dari_galeri_atau_kamera">Select from gallery or camera</string>
-    <string name="hapus_foto">Delete picture</string>
-    <string name="kembali_ke_foto_default">Back to default picture</string>
-    <string name="belum_ada_foto_profil_untuk_dihapus">There is no profile picture to remove.</string>
+    <string name="profile_pic_title">Foto Profil</string>
+    <string name="action_change_picture">Ganti Foto</string>
+    <string name="profile_pic_msg_select_source">Pilih dari galeri atau kamera</string>
+    <string name="action_delete_picture">Hapus Foto</string>
+    <string name="action_default_picture">Kembali ke foto default</string>
+    <string name="profile_pic_msg_no_picture">Belum ada foto profil untuk dihapus.</string>
 
     <!-- Settings & General Actions -->
-    <string name="pengaturan">Settings</string>
-    <string name="notifikasi">Notification</string>
-    <string name="bahasa">Language</string>
-    <string name="pilih_bahasa">Select Language</string>
-    <string name="sesuai_sistem">Default System</string>
-    <string name="gagal_memuat_data">Failed to load data</string>
-    <string name="coba_lagi">Try Again</string>
-    <string name="batal">Cancel</string>
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_label_notification">Notifikasi</string>
+    <string name="settings_label_language">Bahasa</string>
+    <string name="action_select_language">Pilih Bahasa</string>
+    <string name="settings_label_system_default">Sesuai Sistem</string>
+    <string name="action_try_again">Coba Lagi</string>
+    <string name="action_cancel">Batal</string>
 
     <!-- Logout & Exit -->
-    <string name="logout">Logout</string>
-    <string name="konfirmasi_logout">Confirm Logout</string>
-    <string name="apakah_anda_yakin_ingin_logout">Are you sure want to logout?</string>
-    <string name="exit">Exit</string>
+    <string name="action_logout">Keluar</string>
+    <string name="dialog_title_logout">Konfirmasi Logout</string>
+    <string name="dialog_msg_logout">Apakah anda yakin ingin logout?</string>
+    <string name="action_exit">Keluar</string>
 
     <!-- ERROR MESSAGE -->
-    <string name="error_unknown">Unknown Error</string>
-    <string name="error_data_not_found">Data Not Found</string>
-    <string name="error_token_expired">Token Expired</string>
-    <string name="error_server">Server Error Occurred</string>
-    <string name="error_no_internet">No Internet</string>
+    <string name="error_unknown">Error tidak diketahui</string>
+    <string name="error_data_not_found">Data tidak ditemukan</string>
+    <string name="error_token_expired">Sesi telah berakhir</string>
+    <string name="error_server">Terjadi kesalahan server</string>
+    <string name="error_no_internet">Tidak ada koneksi internet</string>
+    <string name="error_to_load_data">Gagal memuat data</string>
 </resources>

@@ -43,11 +43,11 @@ enum class AppDestinations(
     val iconSelected: ImageVector,
     val iconUnselected: ImageVector,
 ) {
-    HOME(R.string.menu_home, Icons.Filled.Home, Icons.Outlined.Home),
-    BARANG(R.string.menu_barang, Icons.Filled.Inventory2, Icons.Outlined.Inventory2),
-    PINJAM(R.string.menu_pinjam, Icons.Filled.Add, Icons.Outlined.Add),
-    RIWAYAT(R.string.menu_riwayat, Icons.Filled.History, Icons.Outlined.History),
-    PROFILE(R.string.menu_profile, Icons.Filled.Person, Icons.Outlined.Person)
+    HOME(R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home),
+    BARANG(R.string.nav_item, Icons.Filled.Inventory2, Icons.Outlined.Inventory2),
+    PINJAM(R.string.nav_borrow, Icons.Filled.Add, Icons.Outlined.Add),
+    RIWAYAT(R.string.nav_history, Icons.Filled.History, Icons.Outlined.History),
+    PROFILE(R.string.nav_profile, Icons.Filled.Person, Icons.Outlined.Person)
 }
 
 @Composable

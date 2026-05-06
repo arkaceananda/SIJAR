@@ -154,20 +154,20 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                     ) {
                         Column(modifier = Modifier.padding(24.dp)) {
                             Text(
-                                text = context.getString(R.string.login),
+                                text = context.getString(R.string.auth_title_login),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextMain
                             )
                             Text(
-                                text = stringResource(R.string.use_class_code),
+                                text = stringResource(R.string.auth_msg_use_class_code),
                                 fontSize = 13.sp,
                                 color = TextMuted,
                                 modifier = Modifier.padding(top = 2.dp, bottom = 24.dp)
                             )
 
                             Text(
-                                text = stringResource(R.string.kode_kelas),
+                                text = stringResource(R.string.auth_label_class_code),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = TextMain,
@@ -176,7 +176,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             OutlinedTextField(
                                 value = kodeKelas,
                                 onValueChange = { kodeKelas = it },
-                                placeholder = { Text(stringResource(R.string.example_class_code), color = TextMuted) },
+                                placeholder = { Text(stringResource(R.string.auth_hint_example_class_code), color = TextMuted) },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -192,7 +192,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
-                                text = stringResource(R.string.password),
+                                text = stringResource(R.string.auth_label_password),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = TextMain,
@@ -201,7 +201,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                             OutlinedTextField(
                                 value = password,
                                 onValueChange = { password = it },
-                                placeholder = { Text(stringResource(R.string.masukkan_password), color = TextMuted) },
+                                placeholder = { Text(stringResource(R.string.auth_hint_password), color = TextMuted) },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -234,7 +234,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                                     } else {
                                         scope.launch {
                                             snackbarHostState.currentSnackbarData?.dismiss()
-                                            snackbarHostState.showSnackbar(context.getString(R.string.enter_class_code_and_password))
+                                            snackbarHostState.showSnackbar(context.getString(R.string.auth_msg_enter_credentials))
                                         }
                                     }
                                 },
@@ -252,7 +252,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                                     LoadingDots()
                                 } else {
                                     Text(
-                                        text = context.getString(R.string.login),
+                                        text = context.getString(R.string.auth_title_login),
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 16.sp,
                                         color = White

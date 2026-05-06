@@ -15,9 +15,9 @@ fun greetingTime(): String {
 fun greetingDay(): Int {
     val hour = LocalDateTime.now().hour
     return when (hour) {
-        in 5..10 -> R.string.pagi
-        in 11..14 -> R.string.siang
-        in 15..18 -> R.string.sore
-        else -> R.string.malam
+        in 5..10 -> R.string.greeting_morning
+        in 11..14 -> R.string.greeting_afternoon
+        in 15..18 -> R.string.greeting_evening
+        else -> R.string.greeting_night
     }
 }

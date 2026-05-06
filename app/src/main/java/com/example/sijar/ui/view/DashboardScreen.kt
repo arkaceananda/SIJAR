@@ -93,12 +93,12 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 StatCard(
-                                    label = stringResource(R.string.dipinjam),
+                                    label = stringResource(R.string.status_borrowed),
                                     count = data.totalDipinjam,
                                     modifier = Modifier.weight(1f)
                                 )
                                 StatCard(
-                                    label = stringResource(R.string.selesai),
+                                    label = stringResource(R.string.status_finished),
                                     count = data.totalSelesai,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -107,7 +107,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
 
                         item {
                             Text(
-                                text = stringResource(R.string.peminjaman_terbaru),
+                                text = stringResource(R.string.catalog_title_latest_loan),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground,
@@ -174,14 +174,14 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                peminjaman.item?.namaItem ?: stringResource(R.string.barang_tidak_diketahui),
+                peminjaman.item?.namaItem ?: stringResource(R.string.item_label_unknown_item),
                 style = MaterialTheme.typography.titleMedium, 
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 stringResource(
-                    R.string.kode,
+                    R.string.item_label_code,
                     peminjaman.item?.kodeUnit ?: peminjaman.kodeUnit ?: "-"
                 ),
                 style = MaterialTheme.typography.labelSmall,
@@ -190,7 +190,7 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 stringResource(
-                    R.string.keperluan,
+                    R.string.item_label_purpose,
                     peminjaman.keperluan ?: "-"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -210,8 +210,8 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Badge(
-                    text = peminjaman.statusTujuan ?: stringResource(R.string.pending),
-                    color = if (peminjaman.statusTujuan == stringResource(R.string.approved)) GreenSoft else YellowSoft
+                    text = peminjaman.statusTujuan ?: stringResource(R.string.status_pending),
+                    color = if (peminjaman.statusTujuan == stringResource(R.string.status_approved)) GreenSoft else YellowSoft
                 )
             }
         }
