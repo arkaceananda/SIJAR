@@ -48,6 +48,7 @@ import com.example.sijar.viewModel.ProfileViewModel
 fun ProfileScreen(
     onLogoutSuccess: () -> Unit,
     onChangePassword: () -> Unit,
+    onEditProfile: (() -> Unit)? = null,
     viewModel: ProfileViewModel = viewModel()
 ) {
     val profileState = viewModel.profileState
@@ -164,7 +165,7 @@ fun ProfileScreen(
                                     icon = Icons.Outlined.Edit,
                                     label = stringResource(R.string.action_edit_profile),
                                     iconTint = BluePrimary,
-                                    onClick = { /* TODO */ }
+                                    onClick = { onEditProfile?.invoke() }
                                 )
                                 RowDivider()
                                 ActionRow(

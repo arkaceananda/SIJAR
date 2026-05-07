@@ -4,8 +4,10 @@ import com.example.sijar.api.model.data.request.AuthRequest
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.*
 import com.example.sijar.api.model.data.response.UpdatePasswordResponse
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -20,14 +22,15 @@ interface ApiService {
     ): Response<ItemResponse>
 
     @GET("peminjaman")
-    suspend fun getPeminjaman(@Header("Authorization") token: String): Response<PeminjamanResponse>
+    suspend fun getPeminjamanList (): Response<PeminjamanResponse>
 
     @Multipart
     @POST("peminjaman-kirim")
     suspend fun createPeminjaman(
-        @Header("Authorization") token: String,
         @Part("keperluan") keperluan: RequestBody,
         @Part("item_id") itemId: RequestBody,
+        @Part("kode_unit") kodeUnit: RequestBody,
+        @Part("waktu_ids") waktuIds: List<MultipartBody.Part>,
         @Part bukti: MultipartBody.Part?
     ): Response<CreatePeminjamanResponse>
 
@@ -54,4 +57,15 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: UpdatePasswordRequest
     ): Response<UpdatePasswordResponse>
+
+    @Multipart
+    @POST("profile/update/{id}")
+    suspend fun updateProfile(
+        @Header("Authorization") token: String,
+        @Path("id") userId: Int,
+        @Part("name") name: RequestBody,
+        @Part("email") email: RequestBody,
+        @Part("telepon") telepon: RequestBody?,
+        @Part("_method") method: RequestBody = "PUT".toRequestBody("text/plain".toMediaType())
+    ): Response<UpdateProfileResponse>
 }

@@ -44,7 +44,7 @@ import com.example.sijar.viewModel.BarangViewModel
 @Composable
 fun BarangScreen(
     viewModel: BarangViewModel = viewModel(),
-    onItemClick: (Int) -> Unit
+    onItemClick: (Item) -> Unit
 ) {
     val uiState = viewModel.barangState
     val filteredList = viewModel.filteredBarang
@@ -82,7 +82,7 @@ fun BarangScreen(
         ) {
             BarangDetailSheet(
                 item = item,
-                onPinjam = { onItemClick(item.id) },
+                onPinjam = { onItemClick(item) },
                 onDismiss = { selectedItem = null }
             )
         }

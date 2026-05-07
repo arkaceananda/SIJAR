@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.Data
 import com.example.sijar.api.model.data.response.UpdatePasswordResponse
+import com.example.sijar.api.model.data.response.UpdateProfileResponse
 import com.example.sijar.api.model.repository.ProfileRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
@@ -34,6 +35,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         private set
 
     var changePasswordState by mutableStateOf<UiState<UpdatePasswordResponse>>(UiState.Idle)
+        private set
+
+    var updateProfileState by mutableStateOf<UiState<UpdateProfileResponse>>(UiState.Idle)
         private set
 
     init {
@@ -149,5 +153,37 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun resetChangePasswordState() {
         changePasswordState = UiState.Idle
+    }
+
+    fun updateProfile(name: String, email: String, telepon: String?) {
+        viewModelScope.launch {
+            updateProfileState = UiState.Loading
+
+            val token = sessionManager.getToken() ?: run {
+                updateProfileState = UiState.Error(ErrorType.Unauthorized)
+                return@launch
+            }
+
+            val userId = (profileState as? UiState.Success)?.data?.id ?: run {
+                updateProfileState = UiState.Error(ErrorType.Unknown)
+                return@launch
+            }
+
+            updateProfileState = when (
+                val result = repository.updateProfile(token, userId, name, email, telepon)
+            ) {
+                is ApiResult.Success -> {
+                    loadProfile()
+                    UiState.Success(result.data)
+                }
+                is ApiResult.Error -> {
+                    UiState.Error(result.type, result.message)
+                }
+            }
+        }
+    }
+
+    fun resetUpdateProfileState() {
+        updateProfileState = UiState.Idle
     }
 }

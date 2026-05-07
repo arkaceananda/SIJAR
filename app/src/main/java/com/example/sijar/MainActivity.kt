@@ -20,6 +20,7 @@ import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.ui.view.BarangScreen
 import com.example.sijar.ui.view.ChangePassword
 import com.example.sijar.ui.view.DashboardScreen
+import com.example.sijar.ui.view.EditProfile
 import com.example.sijar.ui.view.LoginScreen
 import com.example.sijar.ui.view.PinjamBarang
 import com.example.sijar.ui.view.ProfileScreen
@@ -59,12 +60,16 @@ fun SIJARApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isLoggedIn by rememberSaveable { mutableStateOf(sessionManager.isLoggedIn()) }
     var showChangePassword by rememberSaveable { mutableStateOf(false) }
+    var showEditProfile by rememberSaveable { mutableStateOf(false) }
+    var selectedItemForPeminjaman by remember { mutableStateOf<com.example.sijar.api.model.data.Item?>(null) }
 
     if (!isLoggedIn) {
         LoginScreen(onLoginSuccess = { isLoggedIn = true })
     } else {
         if (showChangePassword) {
             ChangePassword(onBack = { showChangePassword = false })
+        } else if (showEditProfile) {
+            EditProfile(onBack = { showEditProfile = false })
         }
         else {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -76,16 +81,23 @@ fun SIJARApp() {
                     when (currentDestination) {
                         AppDestinations.HOME -> DashboardScreen()
                         AppDestinations.BARANG -> BarangScreen(
-                            onItemClick = { currentDestination = AppDestinations.PINJAM }
+                            onItemClick = { item ->
+                                selectedItemForPeminjaman = item
+                                currentDestination = AppDestinations.PINJAM
+                            }
                         )
-                        AppDestinations.PINJAM -> PinjamBarang()
+                        AppDestinations.PINJAM -> PinjamBarang(
+//                            selectedItem = selectedItemForPeminjaman,
+//                            onSuccess = { currentDestination = AppDestinations.HOME }
+                        )
                         AppDestinations.RIWAYAT -> RiwayatScreen()
                         AppDestinations.PROFILE -> ProfileScreen(
                             onLogoutSuccess = {
                                 sessionManager.clearSession()
                                 isLoggedIn = false
                             },
-                            onChangePassword = { showChangePassword = true }
+                            onChangePassword = { showChangePassword = true },
+                            onEditProfile = { showEditProfile = true }
                         )
                     }
                 }
