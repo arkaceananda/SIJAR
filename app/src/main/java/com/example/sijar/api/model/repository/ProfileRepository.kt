@@ -1,6 +1,8 @@
 package com.example.sijar.api.model.repository
 
+import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.ProfileResponse
+import com.example.sijar.api.model.data.response.UpdatePasswordResponse
 import com.example.sijar.api.service.ApiService
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.ErrorType
@@ -63,6 +65,29 @@ class ProfileRepository(private val apiService: ApiService) {
                     ApiResult.Success(response.body()!!)
                 } else {
                     ApiResult.Error(ErrorType.Unknown)
+                }
+            } catch (_: IOException) {
+                ApiResult.Error(ErrorType.Network)
+            } catch (_: Exception) {
+                ApiResult.Error(ErrorType.Unknown)
+            }
+        }
+    }
+
+    suspend fun changePassword(token: String, request: UpdatePasswordRequest): ApiResult<UpdatePasswordResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.updatePassword(token, request)
+                if (response.isSuccessful && response.body() != null) {
+                    ApiResult.Success(response.body()!!)
+                } else {
+                    val type = when(response.code()) {
+                        400 -> ErrorType.BadRequest
+                        401 -> ErrorType.Unauthorized
+                        500 -> ErrorType.Server
+                        else -> ErrorType.Unknown
+                    }
+                    ApiResult.Error(type)
                 }
             } catch (_: IOException) {
                 ApiResult.Error(ErrorType.Network)

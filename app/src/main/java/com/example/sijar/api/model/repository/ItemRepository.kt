@@ -1,6 +1,5 @@
 package com.example.sijar.api.model.repository
 
-import android.util.Log
 import com.example.sijar.api.model.data.response.ItemResponse
 import com.example.sijar.api.service.ApiService
 import com.example.sijar.api.utils.ApiResult

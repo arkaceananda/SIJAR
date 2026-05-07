@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.ui.view.BarangScreen
+import com.example.sijar.ui.view.ChangePassword
 import com.example.sijar.ui.view.DashboardScreen
 import com.example.sijar.ui.view.LoginScreen
 import com.example.sijar.ui.view.PinjamBarang
@@ -57,36 +58,45 @@ fun SIJARApp() {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isLoggedIn by rememberSaveable { mutableStateOf(sessionManager.isLoggedIn()) }
+    var showChangePassword by rememberSaveable { mutableStateOf(false) }
 
     if (!isLoggedIn) {
         LoginScreen(onLoginSuccess = { isLoggedIn = true })
     } else {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 90.dp)
-            ) {
-                when (currentDestination) {
-                    AppDestinations.HOME -> DashboardScreen()
-                    AppDestinations.BARANG -> BarangScreen(
-                        onItemClick = { currentDestination = AppDestinations.PINJAM }
-                    )
-                    AppDestinations.PINJAM -> PinjamBarang()
-                    AppDestinations.RIWAYAT -> RiwayatScreen()
-                    AppDestinations.PROFILE -> ProfileScreen(onLogoutSuccess = {
-                        sessionManager.clearSession()
-                        isLoggedIn = false
-                    })
+        if (showChangePassword) {
+            ChangePassword(onBack = { showChangePassword = false })
+        }
+        else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 90.dp)
+                ) {
+                    when (currentDestination) {
+                        AppDestinations.HOME -> DashboardScreen()
+                        AppDestinations.BARANG -> BarangScreen(
+                            onItemClick = { currentDestination = AppDestinations.PINJAM }
+                        )
+                        AppDestinations.PINJAM -> PinjamBarang()
+                        AppDestinations.RIWAYAT -> RiwayatScreen()
+                        AppDestinations.PROFILE -> ProfileScreen(
+                            onLogoutSuccess = {
+                                sessionManager.clearSession()
+                                isLoggedIn = false
+                            },
+                            onChangePassword = { showChangePassword = true }
+                        )
+                    }
                 }
-            }
 
-            FloatingNavBar(
-                destinations = AppDestinations.entries.toList(),
-                currentDestination = currentDestination,
-                onDestinationSelected = { currentDestination = it },
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
+                FloatingNavBar(
+                    destinations = AppDestinations.entries.toList(),
+                    currentDestination = currentDestination,
+                    onDestinationSelected = { currentDestination = it },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
         }
     }
 }

@@ -102,6 +102,8 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_logout">Logout</string>
     <string name="action_exit">Exit</string>
+    <string name="action_close">Close</string>
+    <string name="action_back">Back</string>
 
     <!-- ERROR MESSAGE -->
     <string name="error_unknown">Unknown Error</string>
@@ -110,4 +112,22 @@
     <string name="error_server">Server Error Occurred</string>
     <string name="error_no_internet">No Internet</string>
     <string name="error_to_load_data">Failed to load data</string>
+
+    <!-- Change Password -->
+    <string name="change_password_title">Change Password</string>
+    <string name="change_password_description">Enter your current password and new password</string>
+    <string name="change_password_label_current">Current Password</string>
+    <string name="change_password_hint_current">Enter current password</string>
+    <string name="change_password_label_new">New Password</string>
+    <string name="change_password_label_now">Current Password</string>
+    <string name="change_password_hint_character">Password must be at least 8 characters</string>
+    <string name="change_password_hint_new">Enter new password</string>
+    <string name="change_password_label_confirm">Confirm New Password</string>
+    <string name="change_password_hint_confirm">Re-enter new password</string>
+    <string name="change_password_success">Password changed successfully</string>
+    <string name="change_password_error_mismatch">New password and confirmation do not match</string>
+    <string name="change_password_error_empty">All fields must be filled</string>
+    <string name="error_occured">Terjadi kesalahan</string>
+    <string name="change_password_save">Save Password</string>
+    <string name="change_password_make_sure">Make sure the password is easy to remember.</string>
 </resources>

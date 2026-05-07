@@ -1,136 +1,160 @@
 package com.example.sijar.ui.view
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
+import com.example.sijar.api.model.data.DashboardData
 import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.api.utils.greetingDay
 import com.example.sijar.api.utils.greetingTime
+import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.utils.asString
 import com.example.sijar.viewModel.DashboardViewModel
-import com.example.sijar.ui.theme.GreenSoft
-import com.example.sijar.ui.theme.YellowSoft
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
     val uiState = viewModel.dashboardState
     val isRefreshing = viewModel.isRefreshing
+    var isVisible by remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    LaunchedEffect(Unit) { isVisible = true }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Sky)
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = { viewModel.refresh() },
             modifier = Modifier.fillMaxSize()
         ) {
-            when (uiState) {
-                is UiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                ) + fadeIn(tween(300))
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 32.dp)
+                ) {
 
-                is UiState.Success -> {
-                    val data = uiState.data
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 16.dp,
-                            bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
-                            start = 16.dp,
-                            end = 16.dp
+                    item {
+                        DashboardHeader(
+                            userName = viewModel.userName,
+                            uiState = uiState
                         )
-                    ) {
-                        item {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp)
-                            ) {
-                                Text(
-                                    text = greetingTime(),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = stringResource(
-                                        id = greetingDay(),
-                                        viewModel.userName
-                                    ),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontWeight = FontWeight.Medium
-                                )
+                    }
+
+                    when (uiState) {
+                        is UiState.Loading -> {
+                            item { Spacer(modifier = Modifier.height(24.dp)) }
+                            items(3) { DashboardCardSkeleton() }
+                        }
+
+                        is UiState.Success -> {
+                            val data: DashboardData = uiState.data
+
+                            item {
+                                Spacer(modifier = Modifier.height(24.dp))
+                                SectionLabel(stringResource(R.string.catalog_title_latest_loan))
+                            }
+
+                            if (data.peminjamanTerbaru.isEmpty()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 48.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.search_no_results_title),
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = TextMain,
+                                            fontSize = 15.sp
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.catalog_no_items_found),
+                                            color = TextMuted,
+                                            fontSize = 13.sp,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    }
+                                }
+                            } else {
+                                items(
+                                    items = data.peminjamanTerbaru,
+                                    key = { it.id }
+                                ) { pinjam ->
+                                    PeminjamanCard(peminjaman = pinjam)
+                                }
                             }
                         }
 
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 24.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                StatCard(
-                                    label = stringResource(R.string.status_borrowed),
-                                    count = data.totalDipinjam,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                StatCard(
-                                    label = stringResource(R.string.status_finished),
-                                    count = data.totalSelesai,
-                                    modifier = Modifier.weight(1f)
-                                )
+                        is UiState.Error -> {
+                            item {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 48.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.error_to_load_data),
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = TextMain,
+                                        fontSize = 15.sp
+                                    )
+                                    Text(
+                                        text = uiState.asString(),
+                                        color = TextMuted,
+                                        fontSize = 13.sp,
+                                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                                    )
+                                    Button(
+                                        onClick = { viewModel.refresh() },
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = BluePrimary
+                                        )
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.action_try_again),
+                                            color = White,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
                             }
                         }
 
-                        item {
-                            Text(
-                                text = stringResource(R.string.catalog_title_latest_loan),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
-
-                        items(data.peminjamanTerbaru) { pinjam ->
-                            PeminjamanCard(peminjaman = pinjam)
-                        }
-                    }
-                }
-
-                is UiState.Error -> {
-                    val errorMessage = uiState.asString()
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = errorMessage,
-                            color = MaterialTheme.colorScheme.error
-                        )
+                        else -> {}
                     }
                 }
             }
@@ -138,80 +162,215 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
     }
 }
 
+@Composable
+fun DashboardHeader(
+    userName: String,
+    uiState: UiState<DashboardData>
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                val waveHeight = 40.dp.toPx()
+                val w = size.width
+                val h = size.height
+
+                val path = Path().apply {
+                    moveTo(0f, 0f)
+                    lineTo(0f, h - waveHeight)
+                    cubicTo(
+                        w * 0.3f, h + waveHeight * 0.5f,
+                        w * 0.7f, h - waveHeight * 1.6f,
+                        w, h - waveHeight * 0.1f
+                    )
+                    lineTo(w, 0f)
+                    close()
+                }
+                drawPath(path = path, color = BlueDark)
+            }
+            .statusBarsPadding()
+            .padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 24.dp,
+                bottom = 52.dp
+            )
+    ) {
+        Column {
+            Text(
+                text = greetingTime(),
+                fontSize = 13.sp,
+                color = BlueLight.copy(alpha = 0.75f),
+                fontWeight = FontWeight.Medium
+            )
+
+            Text(
+                text = stringResource(greetingDay(), userName),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = White,
+                modifier = Modifier.padding(top = 2.dp, bottom = 24.dp)
+            )
+
+            /* Stat cards */
+            when (uiState) {
+                is UiState.Success -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        DashboardStatCard(
+                            label = stringResource(R.string.status_borrowed),
+                            count = uiState.data.totalDipinjam,
+                            modifier = Modifier.weight(1f)
+                        )
+                        DashboardStatCard(
+                            label = stringResource(R.string.status_finished),
+                            count = uiState.data.totalSelesai,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+                is UiState.Loading -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        repeat(2) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(80.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .shimmerEffect()
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
 
 @Composable
-fun StatCard(label: String, count: Int, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier.height(100.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        )
+fun DashboardStatCard(
+    label: String,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.height(80.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = White.copy(alpha = 0.15f)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(label, style = MaterialTheme.typography.labelMedium)
-            Text(count.toString(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(
+                text = count.toString(),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = White
+            )
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = White.copy(alpha = 0.75f),
+                modifier = Modifier.padding(top = 2.dp)
+            )
         }
     }
 }
 
 @Composable
 fun PeminjamanCard(peminjaman: Peminjaman) {
+    val isApproved = peminjaman.statusTujuan ==
+            stringResource(R.string.status_approved)
+    val statusText = peminjaman.statusTujuan
+        ?: stringResource(R.string.status_pending)
+    val badgeColor = if (isApproved) GreenSoft else YellowSoft
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                peminjaman.item?.namaItem ?: stringResource(R.string.item_label_unknown_item),
-                style = MaterialTheme.typography.titleMedium, 
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                stringResource(
-                    R.string.item_label_code,
-                    peminjaman.item?.kodeUnit ?: peminjaman.kodeUnit ?: "-"
-                ),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                stringResource(
-                    R.string.item_label_purpose,
-                    peminjaman.keperluan ?: "-"),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
+        Column(modifier = Modifier.padding(16.dp)) {
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(
+                        text = peminjaman.item?.namaItem
+                            ?: stringResource(R.string.item_label_unknown_item),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextMain
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.item_label_code,
+                            peminjaman.item?.kodeUnit ?: peminjaman.kodeUnit ?: "-"
+                        ),
+                        fontSize = 12.sp,
+                        color = TextMuted,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = badgeColor.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        text = statusText,
+                        modifier = Modifier.padding(
+                            horizontal = 10.dp,
+                            vertical = 4.dp
+                        ),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = badgeColor
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = BlueLighter,
+                thickness = 0.5.dp
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val displayDate = peminjaman.createdAt?.substringBefore("T") ?: "-"
                 Text(
-                    displayDate, 
-                    style = MaterialTheme.typography.labelSmall, 
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = stringResource(
+                        R.string.item_label_purpose,
+                        peminjaman.keperluan ?: "-"
+                    ),
+                    fontSize = 12.sp,
+                    color = TextMuted,
+                    modifier = Modifier.weight(1f)
                 )
-                Badge(
-                    text = peminjaman.statusTujuan ?: stringResource(R.string.status_pending),
-                    color = if (peminjaman.statusTujuan == stringResource(R.string.status_approved)) GreenSoft else YellowSoft
+                Text(
+                    text = peminjaman.createdAt?.substringBefore("T") ?: "-",
+                    fontSize = 12.sp,
+                    color = TextMuted
                 )
             }
         }
@@ -219,17 +378,63 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
 }
 
 @Composable
-fun Badge(text: String, color: Color) {
-    Surface(
-        color = color.copy(alpha = 0.15f),
-        shape = RoundedCornerShape(8.dp)
+fun DashboardCardSkeleton() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Text(
-            text = text, 
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), 
-            color = color, 
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold
-        )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 160.dp, height = 15.dp)
+                            .shimmerEffect()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(width = 90.dp, height = 12.dp)
+                            .shimmerEffect()
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .size(width = 70.dp, height = 24.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .shimmerEffect()
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = BlueLighter,
+                thickness = 0.5.dp
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 130.dp, height = 12.dp)
+                        .shimmerEffect()
+                )
+                Box(
+                    modifier = Modifier
+                        .size(width = 70.dp, height = 12.dp)
+                        .shimmerEffect()
+                )
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@ class BarangViewModel(
     private val repository: ItemRepository = ItemRepository(ApiClient.apiService)
 ) : ViewModel() {
 
-    var barangState by mutableStateOf<UiState<List<Item>>>(UiState.Loading)
+    var barangState by mutableStateOf<UiState<List<Item>>>(UiState.Idle)
         private set
 
     var isRefreshing by mutableStateOf(false)

@@ -47,6 +47,7 @@ import com.example.sijar.viewModel.ProfileViewModel
 @Composable
 fun ProfileScreen(
     onLogoutSuccess: () -> Unit,
+    onChangePassword: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
     val profileState = viewModel.profileState
@@ -74,7 +75,7 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(Sky)
     ) {
-        when (val state = profileState) {
+        when (profileState) {
             is UiState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = BluePrimary)
@@ -82,7 +83,7 @@ fun ProfileScreen(
             }
 
             is UiState.Success -> {
-                val user = state.data
+                val user = profileState.data
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(tween(500)) + slideInVertically(
@@ -163,14 +164,14 @@ fun ProfileScreen(
                                     icon = Icons.Outlined.Edit,
                                     label = stringResource(R.string.action_edit_profile),
                                     iconTint = BluePrimary,
-                                    onClick = { /* Navigate */ }
+                                    onClick = { /* TODO */ }
                                 )
                                 RowDivider()
                                 ActionRow(
                                     icon = Icons.Outlined.Lock,
                                     label = stringResource(R.string.action_change_password),
                                     iconTint = BluePrimary,
-                                    onClick = { /* Navigate */ }
+                                    onClick = { onChangePassword() }
                                 )
                             }
                         }
@@ -230,7 +231,7 @@ fun ProfileScreen(
             }
 
             is UiState.Error -> {
-                val errorMessage = state.asString()
+                val errorMessage = profileState.asString()
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
@@ -255,6 +256,8 @@ fun ProfileScreen(
                     }
                 }
             }
+
+            else -> {}
         }
     }
 }

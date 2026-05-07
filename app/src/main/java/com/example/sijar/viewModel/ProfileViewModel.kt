@@ -8,7 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.Data
+import com.example.sijar.api.model.data.response.UpdatePasswordResponse
 import com.example.sijar.api.model.repository.ProfileRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
@@ -29,6 +31,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         private set
 
     var isNotifEnabled by mutableStateOf(sessionManager.isNotificationEnabled())
+        private set
+
+    var changePasswordState by mutableStateOf<UiState<UpdatePasswordResponse>>(UiState.Idle)
         private set
 
     init {
@@ -59,8 +64,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
-    fun fetchProfile() = loadProfile()
 
     fun changePhoto(photoPart: MultipartBody.Part) {
         viewModelScope.launch {
@@ -115,5 +118,36 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun logout(onSuccess: () -> Unit) {
         sessionManager.clearSession()
         onSuccess()
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
+        viewModelScope.launch {
+            changePasswordState = UiState.Loading
+            val token = sessionManager.getToken() ?: run {
+                changePasswordState = UiState.Error(ErrorType.Unauthorized)
+                return@launch
+            }
+
+            val request = UpdatePasswordRequest(
+                currentPassword = currentPassword,
+                password = newPassword,
+                passwordConfirmation = confirmPassword
+            )
+
+            changePasswordState =
+                when (val result = repository.changePassword("Bearer $token", request)) {
+                    is ApiResult.Success -> {
+                        UiState.Success(result.data)
+                    }
+
+                    is ApiResult.Error -> {
+                        UiState.Error(result.type, result.message)
+                    }
+                }
+        }
+    }
+
+    fun resetChangePasswordState() {
+        changePasswordState = UiState.Idle
     }
 }

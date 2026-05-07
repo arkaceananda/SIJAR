@@ -1,7 +1,9 @@
 package com.example.sijar.api.service
 
 import com.example.sijar.api.model.data.request.AuthRequest
+import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.*
+import com.example.sijar.api.model.data.response.UpdatePasswordResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -47,9 +49,9 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<ProfileResponse>
 
-//    @PUT("password")
-//    suspend fun updatePassword(
-//        @Header("Authorization") token: String,
-//        @Body request: UpdatePasswordRequest
-//    ): Response<UpdatePasswordResponse>
+    @PUT("password")
+    suspend fun updatePassword(
+        @Header("Authorization") token: String,
+        @Body request: UpdatePasswordRequest
+    ): Response<UpdatePasswordResponse>
 }

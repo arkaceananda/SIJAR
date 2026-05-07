@@ -21,7 +21,7 @@ object ApiClient {
         .addInterceptor(logging)
         .build()
 
-    // Custom Gson dengan deserializer untuk ItemResponse
+    // Custom GSON
     private val gson: Gson by lazy {
         GsonBuilder()
             .registerTypeAdapter(ItemResponse::class.java, ItemResponseDeserializer())
