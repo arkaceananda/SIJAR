@@ -1,5 +1,6 @@
 package com.example.sijar.api.service
 
+import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.model.data.request.AuthRequest
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.*
@@ -33,6 +34,16 @@ interface ApiService {
         @Part("waktu_ids") waktuIds: List<MultipartBody.Part>,
         @Part bukti: MultipartBody.Part?
     ): Response<CreatePeminjamanResponse>
+
+    @Multipart
+    @GET("peminjaman")
+    suspend fun getPeminjaman(
+        @Part("keperluan") keperluan: RequestBody,
+        @Part("item_id") itemId: RequestBody,
+        @Part("kode_unit") kodeUnit: RequestBody,
+        @Part("waktu_ids") waktuIds: List<MultipartBody.Part>,
+        @Part bukti: MultipartBody.Part?
+    ): Response<Peminjaman>
 
     @GET("homepage")
     suspend fun getDashboard(@Header("Authorization") token: String): Response<DashboardResponse>
