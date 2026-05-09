@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.ui.view.BarangScreen
 import com.example.sijar.ui.view.ChangePassword
@@ -26,6 +27,7 @@ import com.example.sijar.ui.view.PinjamBarang
 import com.example.sijar.ui.view.ProfileScreen
 import com.example.sijar.ui.view.RiwayatScreen
 import com.example.sijar.ui.theme.*
+import com.example.sijar.viewModel.PeminjamanViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +58,7 @@ enum class AppDestinations(
 fun SIJARApp() {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }
+    val peminjamanViewModel: PeminjamanViewModel = viewModel()
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isLoggedIn by rememberSaveable { mutableStateOf(sessionManager.isLoggedIn()) }
@@ -79,7 +82,7 @@ fun SIJARApp() {
                         .padding(bottom = 90.dp)
                 ) {
                     when (currentDestination) {
-                        AppDestinations.HOME -> DashboardScreen()
+                        AppDestinations.HOME -> DashboardScreen(peminjamanViewModel = viewModel())
                         AppDestinations.BARANG -> BarangScreen(
                             onItemClick = { item ->
                                 selectedItemForPeminjaman = item
@@ -87,10 +90,12 @@ fun SIJARApp() {
                             }
                         )
                         AppDestinations.PINJAM -> PinjamBarang(
-//                            selectedItem = selectedItemForPeminjaman,
-//                            onSuccess = { currentDestination = AppDestinations.HOME }
+                            selectedItem = selectedItemForPeminjaman,
+                            onSuccess = {
+                                selectedItemForPeminjaman = null
+                                currentDestination = AppDestinations.HOME }
                         )
-                        AppDestinations.RIWAYAT -> RiwayatScreen()
+                        AppDestinations.RIWAYAT -> RiwayatScreen(peminjamanViewModel = viewModel())
                         AppDestinations.PROFILE -> ProfileScreen(
                             onLogoutSuccess = {
                                 sessionManager.clearSession()

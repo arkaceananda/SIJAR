@@ -29,12 +29,17 @@ import com.example.sijar.api.utils.greetingTime
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.utils.asString
 import com.example.sijar.viewModel.DashboardViewModel
+import com.example.sijar.viewModel.PeminjamanViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
-    val uiState = viewModel.dashboardState
-    val isRefreshing = viewModel.isRefreshing
+fun DashboardScreen(
+    dashboardViewModel: DashboardViewModel = viewModel(),
+    peminjamanViewModel: PeminjamanViewModel = viewModel()
+) {
+    val uiState = dashboardViewModel.dashboardState
+    val isRefreshing = dashboardViewModel.isRefreshing
+    val peminjamanListState = peminjamanViewModel.listState
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { isVisible = true }
@@ -46,7 +51,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = { viewModel.refresh() },
+            onRefresh = { dashboardViewModel.refresh() },
             modifier = Modifier.fillMaxSize()
         ) {
             AnimatedVisibility(
@@ -66,7 +71,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
 
                     item {
                         DashboardHeader(
-                            userName = viewModel.userName,
+                            userName = dashboardViewModel.userName,
                             uiState = uiState
                         )
                     }
@@ -83,6 +88,32 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                             item {
                                 Spacer(modifier = Modifier.height(24.dp))
                                 SectionLabel(stringResource(R.string.catalog_title_latest_loan))
+                            }
+
+                            when(peminjamanListState) {
+                                is UiState.Loading -> {
+                                    items(3) { DashboardCardSkeleton() }
+                                }
+                                is UiState.Success -> {
+                                    val active = peminjamanViewModel.peminjamanActive
+                                    if (active.isEmpty()) item { EmptyPeminjamanPlaceholder() }
+                                    else {
+                                        items(items = active, key = { it.id } ) { pinjam ->
+                                            PeminjamanCard(peminjaman = pinjam)
+                                        }
+                                    }
+                                }
+                                is UiState.Error -> {
+                                    item {
+                                        Text(
+                                            text =  peminjamanListState.asString(),
+                                            color = TextMuted,
+                                            fontSize = 13.sp,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                    }
+                                }
+                                else -> {}
                             }
 
                             if (data.peminjamanTerbaru.isEmpty()) {
@@ -138,7 +169,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                                         modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
                                     )
                                     Button(
-                                        onClick = { viewModel.refresh() },
+                                        onClick = { dashboardViewModel.refresh() },
                                         shape = RoundedCornerShape(10.dp),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = BluePrimary
@@ -436,5 +467,30 @@ fun DashboardCardSkeleton() {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun EmptyPeminjamanPlaceholder(
+    message: String = stringResource(R.string.catalog_no_items_found)
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.search_no_results_title),
+            fontWeight = FontWeight.SemiBold,
+            color = TextMain,
+            fontSize = 15.sp
+        )
+        Text(
+            text = message,
+            color = TextMuted,
+            fontSize = 13.sp,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }

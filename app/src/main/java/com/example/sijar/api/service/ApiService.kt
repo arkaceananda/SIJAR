@@ -22,11 +22,14 @@ interface ApiService {
         @Query("search") search: String?
     ): Response<ItemResponse>
 
+    @GET("waktu")
+    suspend fun getWaktuPembelajaran(): Response<WaktuResponse>
+
     @GET("peminjaman")
     suspend fun getPeminjamanList (): Response<PeminjamanResponse>
 
     @Multipart
-    @POST("peminjaman-kirim")
+    @POST("peminjaman/store")
     suspend fun createPeminjaman(
         @Part("keperluan") keperluan: RequestBody,
         @Part("item_id") itemId: RequestBody,
@@ -34,16 +37,6 @@ interface ApiService {
         @Part("waktu_ids") waktuIds: List<MultipartBody.Part>,
         @Part bukti: MultipartBody.Part?
     ): Response<CreatePeminjamanResponse>
-
-    @Multipart
-    @GET("peminjaman")
-    suspend fun getPeminjaman(
-        @Part("keperluan") keperluan: RequestBody,
-        @Part("item_id") itemId: RequestBody,
-        @Part("kode_unit") kodeUnit: RequestBody,
-        @Part("waktu_ids") waktuIds: List<MultipartBody.Part>,
-        @Part bukti: MultipartBody.Part?
-    ): Response<Peminjaman>
 
     @GET("homepage")
     suspend fun getDashboard(@Header("Authorization") token: String): Response<DashboardResponse>
@@ -63,7 +56,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<ProfileResponse>
 
-    @PUT("password")
+    @PATCH("profile/password/update")
     suspend fun updatePassword(
         @Header("Authorization") token: String,
         @Body request: UpdatePasswordRequest
