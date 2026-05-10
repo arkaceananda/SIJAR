@@ -1,4 +1,4 @@
-package com.example.sijar.ui.utils
+package com.example.sijar.ui.helper
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

@@ -1,10 +1,9 @@
 package com.example.sijar.viewModel
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.WaktuPeminjaman
 import com.example.sijar.api.model.repository.WaktuRepository
@@ -13,7 +12,7 @@ import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
 
-class WaktuViewModel(application: Application) : AndroidViewModel(application) {
+class WaktuViewModel : ViewModel() {
 
     private val repository = WaktuRepository(ApiClient.apiService)
 

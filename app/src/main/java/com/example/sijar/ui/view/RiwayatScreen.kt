@@ -8,14 +8,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,9 +25,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.ModernCard
+import com.example.sijar.ui.helper.RowDivider
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
 import com.example.sijar.viewModel.PeminjamanViewModel
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,9 +42,6 @@ fun RiwayatScreen(
     val listState = peminjamanViewModel.listState
     val isRefreshing = peminjamanViewModel.isRefreshing
     var isVisible by remember { mutableStateOf(false) }
-
-    // Tab: 0 = Dipinjam, 1 = Selesai
-    var selectedTab by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) { isVisible = true }
 
@@ -67,65 +70,58 @@ fun RiwayatScreen(
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
 
-                    // ── Header ───────────────────────────────────────
+                    /* Wave Header */
                     item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(BlueDark)
-                                .statusBarsPadding()
-                                .padding(horizontal = 20.dp, vertical = 20.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.nav_history),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = White
-                            )
-                        }
+                        RiwayatHeader()
                     }
 
-                    // ── Tab row ──────────────────────────────────────
-                    item {
-                        RiwayatTabRow(
-                            selectedTab = selectedTab,
-                            onTabSelected = { selectedTab = it }
-                        )
-                    }
-
-                    // ── Content ──────────────────────────────────────
+                    /* Main Content */
                     when (listState) {
                         is UiState.Loading -> {
-                            item { Spacer(modifier = Modifier.height(16.dp)) }
-                            items(4) { RiwayatCardSkeleton() }
+                            items(5) { RiwayatCardSkeleton() }
                         }
 
                         is UiState.Success -> {
-                            // Filter berdasarkan tab yang aktif
-                            val displayList = if (selectedTab == 0) {
-                                peminjamanViewModel.peminjamanActive
-                            } else {
-                                peminjamanViewModel.peminjamanSelesai
-                            }
+                            val riwayat = peminjamanViewModel.peminjamanSelesai
 
-                            item { Spacer(modifier = Modifier.height(16.dp)) }
-
-                            if (displayList.isEmpty()) {
-                                item {
-                                    RiwayatEmptyState(
-                                        // Pesan berbeda tergantung tab aktif
-                                        message = if (selectedTab == 0)
-                                            stringResource(R.string.riwayat_empty_active)
-                                        else
-                                            stringResource(R.string.riwayat_empty_finished)
-                                    )
-                                }
+                            if (riwayat.isEmpty()) {
+                                item { RiwayatEmptyState() }
                             } else {
-                                items(
-                                    items = displayList,
-                                    key = { it.id }
-                                ) { peminjaman ->
-                                    RiwayatCard(peminjaman = peminjaman)
+                                /* Mapping */
+                                val grouped = riwayat
+                                    .groupBy { peminjaman ->
+                                        peminjaman.createdAt
+                                            ?.substringBefore("T")
+                                            ?.let {
+                                                YearMonth.parse(
+                                                    it.substring(0, 7),
+                                                    DateTimeFormatter.ofPattern("yyyy-MM")
+                                                )
+                                            }
+                                    }
+                                    .toSortedMap(compareByDescending { it })
+
+                                grouped.forEach { (yearMonth, peminjamanList) ->
+
+                                    /* Month Divider */
+                                    item(key = "header_$yearMonth") {
+                                        MonthDivider(
+                                            label = yearMonth?.format(
+                                                DateTimeFormatter.ofPattern(
+                                                    "MMMM yyyy",
+                                                    Locale.forLanguageTag("id-ID")
+                                                )
+                                            ) ?: stringResource(R.string.riwayat_unknown_date)
+                                        )
+                                    }
+
+                                    /* Cards*/
+                                    items(
+                                        items = peminjamanList,
+                                        key = { it.id }
+                                    ) { peminjaman ->
+                                        RiwayatCard(peminjaman = peminjaman)
+                                    }
                                 }
                             }
                         }
@@ -178,107 +174,109 @@ fun RiwayatScreen(
     }
 }
 
-// ── Tab row ──────────────────────────────────────────────────────────────
-
 @Composable
-private fun RiwayatTabRow(
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit
-) {
-    Row(
+private fun RiwayatHeader() {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(White),
-        horizontalArrangement = Arrangement.spacedBy(0.dp)
+            .drawBehind {
+                val waveHeight = 40.dp.toPx()
+                val w = size.width
+                val h = size.height
+                val path = Path().apply {
+                    moveTo(0f, 0f)
+                    lineTo(0f, h - waveHeight)
+                    cubicTo(
+                        w * 0.3f, h + waveHeight * 0.5f,
+                        w * 0.7f, h - waveHeight * 1.6f,
+                        w, h - waveHeight * 0.1f
+                    )
+                    lineTo(w, 0f)
+                    close()
+                }
+                drawPath(path = path, color = BlueDark)
+            }
+            .statusBarsPadding()
+            .padding(bottom = 52.dp)
     ) {
-        RiwayatTab(
-            label = stringResource(R.string.status_borrowed),
-            icon = Icons.Outlined.Schedule,
-            isSelected = selectedTab == 0,
-            onClick = { onTabSelected(0) },
-            modifier = Modifier.weight(1f)
-        )
-        RiwayatTab(
-            label = stringResource(R.string.status_finished),
-            icon = Icons.Outlined.CheckCircle,
-            isSelected = selectedTab == 1,
-            onClick = { onTabSelected(1) },
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun RiwayatTab(
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) BluePrimary else White,
-        animationSpec = tween(200),
-        label = "tab_bg"
-    )
-    val contentColor by animateColorAsState(
-        targetValue = if (isSelected) White else TextMuted,
-        animationSpec = tween(200),
-        label = "tab_content"
-    )
-
-    Surface(
-        onClick = onClick,
-        modifier = modifier.clip(RoundedCornerShape(12.dp)),
-        color = backgroundColor,
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(vertical = 12.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(top = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = contentColor,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(White.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.History,
+                    contentDescription = null,
+                    tint = White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(14.dp))
             Text(
-                text = label,
+                text = stringResource(R.string.nav_history),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = White
+            )
+            Text(
+                text = stringResource(R.string.riwayat_header_subtitle),
                 fontSize = 13.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color = contentColor
+                color = BlueLight.copy(alpha = 0.75f),
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }
 }
 
-// ── Card ──────────────────────────────────────────────────────────────────
+@Composable
+private fun MonthDivider(label: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            color = BlueLighter,
+            thickness = 1.dp
+        )
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = TextMuted,
+            letterSpacing = 0.5.sp
+        )
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            color = BlueLighter,
+            thickness = 1.dp
+        )
+    }
+}
 
 @Composable
 private fun RiwayatCard(peminjaman: Peminjaman) {
-    // Tentukan warna badge berdasarkan status_tujuan (approved/pending/rejected)
     val (badgeColor, badgeText) = when (peminjaman.statusTujuan?.lowercase()) {
-        "approved" -> GreenSoft to stringResource(R.string.status_approved)
+        "approved" -> GreenSoft to stringResource(R.string.status_finished)
         "rejected" -> MaterialTheme.colorScheme.error to stringResource(R.string.status_rejected)
         else -> YellowSoft to stringResource(R.string.status_pending)
     }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
+    Spacer(modifier = Modifier.height(6.dp))
+    ModernCard {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Baris atas: nama barang + badge status
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -324,13 +322,8 @@ private fun RiwayatCard(peminjaman: Peminjaman) {
                 }
             }
 
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                color = BlueLighter,
-                thickness = 0.5.dp
-            )
+            RowDivider()
 
-            // Baris bawah: keperluan + tanggal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -346,9 +339,7 @@ private fun RiwayatCard(peminjaman: Peminjaman) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    // Tampilkan tanggal selesai jika ada, fallback ke tanggal dibuat
-                    text = (peminjaman.updatedAt ?: peminjaman.createdAt)
-                        ?.substringBefore("T") ?: "-",
+                    text = peminjaman.createdAt?.substringBefore("T") ?: "-",
                     fontSize = 12.sp,
                     color = TextMuted
                 )
@@ -357,18 +348,10 @@ private fun RiwayatCard(peminjaman: Peminjaman) {
     }
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────
-
 @Composable
 private fun RiwayatCardSkeleton() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
+    Spacer(modifier = Modifier.height(6.dp))
+    ModernCard {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -396,11 +379,7 @@ private fun RiwayatCardSkeleton() {
                 )
             }
 
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                color = BlueLighter,
-                thickness = 0.5.dp
-            )
+            RowDivider()
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -421,31 +400,37 @@ private fun RiwayatCardSkeleton() {
     }
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────
-
 @Composable
-private fun RiwayatEmptyState(message: String) {
+private fun RiwayatEmptyState() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Outlined.CheckCircle,
-            contentDescription = null,
-            tint = BlueLighter,
-            modifier = Modifier.size(48.dp)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(BlueLighter),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.History,
+                contentDescription = null,
+                tint = BluePrimary,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = stringResource(R.string.search_no_results_title),
+            text = stringResource(R.string.riwayat_empty_title),
             fontWeight = FontWeight.SemiBold,
             color = TextMain,
             fontSize = 15.sp
         )
         Text(
-            text = message,
+            text = stringResource(R.string.riwayat_empty_desc),
             color = TextMuted,
             fontSize = 13.sp,
             modifier = Modifier.padding(top = 4.dp)

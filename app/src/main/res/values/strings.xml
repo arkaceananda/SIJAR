@@ -96,6 +96,9 @@
     <string name="profile_pic_title">Foto Profil</string>
     <string name="profile_pic_msg_select_source">Pilih dari galeri atau kamera</string>
     <string name="profile_pic_msg_no_picture">Belum ada foto profil untuk dihapus.</string>
+    <string name="profile_successfully_updated">Profil berhasil diperbarui</string>
+    <string name="profile_name_cannot_be_empty">Nama tidak boleh kosong</string>
+    <string name="email_cannot_be_empty">Email tidak boleh kosong</string>
 
     <!-- Settings -->
     <string name="settings_title">Pengaturan</string>
@@ -118,6 +121,10 @@
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">Kamu tidak sedang meminjam barang apapun</string>
     <string name="riwayat_empty_finished">Belum ada riwayat peminjaman yang selesai</string>
+    <string name="riwayat_empty_title">Belum ada riwayat</string>
+    <string name="riwayat_empty_desc">Peminjaman yang selesai atau ditolak akan muncul di sini</string>
+    <string name="riwayat_unknown_date">Tanggal tidak diketahui</string>
+    <string name="riwayat_header_subtitle">Catatan semua peminjaman kamu</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_logout">Konfirmasi Logout</string>

@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.os.LocaleListCompat
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.Data
@@ -16,88 +15,71 @@ import com.example.sijar.api.model.repository.ProfileRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.ErrorType
-import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
+class ProfileViewModel(application: Application) : BaseViewModel(application) {
 
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = ProfileRepository(ApiClient.apiService)
-    private val sessionManager = SessionManager.getInstance(application)
 
     var profileState by mutableStateOf<UiState<Data>>(UiState.Loading)
         private set
-
     var language by mutableStateOf(sessionManager.getLanguage())
         private set
-
     var isNotifEnabled by mutableStateOf(sessionManager.isNotificationEnabled())
         private set
-
     var changePasswordState by mutableStateOf<UiState<UpdatePasswordResponse>>(UiState.Idle)
         private set
-
     var updateProfileState by mutableStateOf<UiState<UpdateProfileResponse>>(UiState.Idle)
         private set
 
-    init {
-        loadProfile()
-    }
+    init { loadProfile() }
 
     fun loadProfile() {
         viewModelScope.launch {
             profileState = UiState.Loading
-            val token = sessionManager.getToken()
-            if (token != null) {
-                when (val result = repository.getProfile("Bearer $token")) {
-                    is ApiResult.Success -> {
-                        val userData = result.data.data.firstOrNull()
-                        if (userData != null) {
-                            profileState = UiState.Success(userData)
-                            sessionManager.saveUserName(userData.name)
-                        } else {
-                            profileState = UiState.Error(ErrorType.EmptyResponse)
-                        }
-                    }
-                    is ApiResult.Error -> {
-                        profileState = UiState.Error(result.type, result.message)
+
+            val token = getBearerToken() ?: run {
+                profileState = UiState.Error(ErrorType.Unauthorized)
+                return@launch
+            }
+
+            when (val result = repository.getProfile(token)) {
+                is ApiResult.Success -> {
+                    val userData = result.data.data.firstOrNull()
+                    profileState = if (userData != null) {
+                        sessionManager.saveUserName(userData.name)
+                        UiState.Success(userData)
+                    } else {
+                        UiState.Error(ErrorType.EmptyResponse)
                     }
                 }
-            } else {
-                profileState = UiState.Error(ErrorType.Unauthorized)
+                is ApiResult.Error -> {
+                    profileState = UiState.Error(result.type, result.message)
+                }
             }
         }
     }
 
     fun changePhoto(photoPart: MultipartBody.Part) {
         viewModelScope.launch {
-            val token = sessionManager.getToken() ?: return@launch
-            when (val result = repository.updatePhoto("Bearer $token", photoPart)) {
-                is ApiResult.Success -> {
-                    loadProfile()
-                }
-                is ApiResult.Error -> {
-                    // Handle error, maybe show a toast via a separate UI effect flow
-                }
+            val token = getBearerToken() ?: return@launch
+            when (repository.updatePhoto(token, photoPart)) {
+                is ApiResult.Success -> loadProfile()
+                is ApiResult.Error -> {}
             }
         }
     }
 
     fun deletePhoto() {
-        val currentState = profileState
-        if (currentState is UiState.Success) {
-            if (currentState.data.profile != null) {
-                viewModelScope.launch {
-                    val token = sessionManager.getToken() ?: return@launch
-                    when (val result = repository.deletePhoto("Bearer $token")) {
-                        is ApiResult.Success -> {
-                            loadProfile()
-                        }
-                        is ApiResult.Error -> {
-                            // Handle error
-                        }
-                    }
-                }
+        val current = profileState as? UiState.Success ?: return
+        if (current.data.profile == null) return
+
+        viewModelScope.launch {
+            val token = getBearerToken() ?: return@launch
+            when (repository.deletePhoto(token)) {
+                is ApiResult.Success -> loadProfile()
+                is ApiResult.Error -> {}
             }
         }
     }
@@ -110,8 +92,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun changeLanguage(lang: String) {
         sessionManager.saveLanguage(lang)
         language = lang
-
-        val appLocale: LocaleListCompat = if (lang == "system") {
+        val appLocale = if (lang == "system") {
             LocaleListCompat.getEmptyLocaleList()
         } else {
             LocaleListCompat.forLanguageTags(lang)
@@ -127,39 +108,31 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun changePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
         viewModelScope.launch {
             changePasswordState = UiState.Loading
-            val token = sessionManager.getToken() ?: run {
+
+            val token = getBearerToken() ?: run {
                 changePasswordState = UiState.Error(ErrorType.Unauthorized)
                 return@launch
             }
 
-            val request = UpdatePasswordRequest(
-                currentPassword = currentPassword,
-                password = newPassword,
-                passwordConfirmation = confirmPassword
-            )
-
-            changePasswordState =
-                when (val result = repository.changePassword("Bearer $token", request)) {
-                    is ApiResult.Success -> {
-                        UiState.Success(result.data)
-                    }
-
-                    is ApiResult.Error -> {
-                        UiState.Error(result.type, result.message)
-                    }
-                }
+            changePasswordState = when (
+                val result = repository.changePassword(
+                    token,
+                    UpdatePasswordRequest(currentPassword, newPassword, confirmPassword)
+                )
+            ) {
+                is ApiResult.Success -> UiState.Success(result.data)
+                is ApiResult.Error -> UiState.Error(result.type, result.message)
+            }
         }
     }
 
-    fun resetChangePasswordState() {
-        changePasswordState = UiState.Idle
-    }
+    fun resetChangePasswordState() { changePasswordState = UiState.Idle }
 
     fun updateProfile(name: String, email: String, telepon: String?) {
         viewModelScope.launch {
             updateProfileState = UiState.Loading
 
-            val token = sessionManager.getToken() ?: run {
+            val token = getBearerToken() ?: run {
                 updateProfileState = UiState.Error(ErrorType.Unauthorized)
                 return@launch
             }
@@ -176,14 +149,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     loadProfile()
                     UiState.Success(result.data)
                 }
-                is ApiResult.Error -> {
-                    UiState.Error(result.type, result.message)
-                }
+                is ApiResult.Error -> UiState.Error(result.type, result.message)
             }
         }
     }
 
-    fun resetUpdateProfileState() {
-        updateProfileState = UiState.Idle
-    }
+    fun resetUpdateProfileState() { updateProfileState = UiState.Idle }
 }

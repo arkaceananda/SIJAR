@@ -26,8 +26,9 @@ import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.api.utils.greetingDay
 import com.example.sijar.api.utils.greetingTime
+import com.example.sijar.ui.helper.SectionLabel
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.DashboardViewModel
 import com.example.sijar.viewModel.PeminjamanViewModel
 

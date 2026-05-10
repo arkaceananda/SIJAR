@@ -15,9 +15,8 @@ import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.SessionManager
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(application: Application) : AndroidViewModel(application) {
+class DashboardViewModel(application: Application) : BaseViewModel(application) {
     private val repository: DashboardRepository = DashboardRepository(ApiClient.apiService)
-    private val sessionManager = SessionManager.getInstance(application)
 
     var dashboardState by mutableStateOf<UiState<DashboardData>>(UiState.Loading)
         private set
@@ -35,19 +34,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             dashboardState = UiState.Loading
 
-            val token = sessionManager.getToken()
-            dashboardState = if (token != null) {
-                when (val result = repository.getDashboardData("Bearer $token")) {
-                    is ApiResult.Success -> {
-                        UiState.Success(result.data.data)
-                    }
-
-                    is ApiResult.Error -> {
-                        UiState.Error(result.type)
-                    }
-                }
-            } else {
-                UiState.Error(ErrorType.Unknown)
+            val token = getBearerToken() ?: run {
+                dashboardState = UiState.Error(ErrorType.Unauthorized)
+                return@launch
+            }
+            dashboardState = when (val result = repository.getDashboardData(token)) {
+                is ApiResult.Success -> UiState.Success(result.data.data)
+                is ApiResult.Error -> UiState.Error(result.type)
             }
         }
     }

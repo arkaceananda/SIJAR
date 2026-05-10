@@ -27,8 +27,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.LoadingDots
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.LoginViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -317,20 +318,6 @@ fun AnimatedLogo() {
             fontWeight = FontWeight.ExtraBold,
             fontSize = 26.sp
         )
-    }
-}
-
-@Composable
-fun LoadingDots() {
-    val delays = listOf(0, 180, 360)
-
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        delays.forEach { delayMs ->
-            AnimatedDot(delayMs = delayMs)
-        }
     }
 }
 

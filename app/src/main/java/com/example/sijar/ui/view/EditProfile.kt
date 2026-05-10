@@ -1,6 +1,5 @@
 package com.example.sijar.ui.view
 
-import android.R.attr.duration
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -29,8 +28,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.LoadingDots
+import com.example.sijar.ui.helper.ModernCard
+import com.example.sijar.ui.helper.RowDivider
+import com.example.sijar.ui.helper.SectionLabel
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.ProfileViewModel
 import kotlinx.coroutines.launch
 
@@ -55,7 +58,6 @@ fun EditProfile(
 
     val updateErrorMessage = (updateState as? UiState.Error)?.asString()
 
-    // Isi form dari data profil
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) {
             val user = profileState.data
@@ -66,12 +68,11 @@ fun EditProfile(
         }
     }
 
-    // Reaksi terhadap update state
     LaunchedEffect(updateState) {
         when (updateState) {
             is UiState.Success -> {
                 snackbarHostState.showSnackbar(
-                    message = "Profil berhasil diperbarui",
+                    message = context.getString(R.string.profile_successfully_updated),
                     duration = SnackbarDuration.Short
                 )
                 viewModel.resetUpdateProfileState()
@@ -154,7 +155,7 @@ fun EditProfile(
                                     .statusBarsPadding()
                                     .padding(bottom = 44.dp)
                             ) {
-                                // Tombol back
+                                // Back button
                                 IconButton(
                                     onClick = onBack,
                                     modifier = Modifier
@@ -169,7 +170,6 @@ fun EditProfile(
                                     )
                                 }
 
-                                // Judul tengah
                                 Column(
                                     modifier = Modifier
                                         .align(Alignment.Center)
@@ -209,12 +209,10 @@ fun EditProfile(
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            // ── Form card ──
                             SectionLabel(stringResource(R.string.profile_label_full_name)
                                 .split(" ").first() + " Info")
 
                             ModernCard {
-                                // Nama
                                 EditFieldRow(
                                     icon = Icons.Outlined.Person,
                                     label = stringResource(R.string.profile_label_full_name),
@@ -250,14 +248,14 @@ fun EditProfile(
 
                             Spacer(modifier = Modifier.height(32.dp))
 
-                            // ── Tombol aksi ──
+                            // Action Button
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp),
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                // Batal
+                                // Cancel
                                 OutlinedButton(
                                     onClick = onBack,
                                     modifier = Modifier
@@ -277,18 +275,18 @@ fun EditProfile(
                                     )
                                 }
 
-                                // Simpan
+                                // Save
                                 Button(
                                     onClick = {
                                         when {
                                             fullName.isBlank() -> scope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "Nama tidak boleh kosong"
+                                                    context.getString(R.string.profile_name_cannot_be_empty)
                                                 )
                                             }
                                             email.isBlank() -> scope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "Email tidak boleh kosong"
+                                                    context.getString(R.string.email_cannot_be_empty)
                                                 )
                                             }
                                             else -> viewModel.updateProfile(
@@ -370,7 +368,6 @@ fun EditProfile(
     }
 }
 
-// ── Field edit reusable — konsisten dengan PasswordFieldRow ──
 @Composable
 fun EditFieldRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -387,7 +384,6 @@ fun EditFieldRow(
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Ikon kotak kiri
         Box(
             modifier = Modifier
                 .size(36.dp)

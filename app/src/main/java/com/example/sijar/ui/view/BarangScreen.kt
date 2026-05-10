@@ -37,7 +37,7 @@ import com.example.sijar.api.model.data.JurusanFilter
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.BarangViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

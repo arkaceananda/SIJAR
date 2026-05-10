@@ -96,6 +96,9 @@
     <string name="profile_pic_title">Profile Picture</string>
     <string name="profile_pic_msg_select_source">Select from gallery or camera</string>
     <string name="profile_pic_msg_no_picture">There is no profile picture to remove.</string>
+    <string name="profile_successfully_updated">Profile successfully updates</string>
+    <string name="profile_name_cannot_be_empty">Name cannot be empty</string>
+    <string name="email_cannot_be_empty">Email cannot be empty</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -118,6 +121,10 @@
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">You are not currently borrowing any items</string>
     <string name="riwayat_empty_finished">No finished loan history yet</string>
+    <string name="riwayat_empty_title">No history yet</string>
+    <string name="riwayat_empty_desc">Completed or rejected loans will appear here </string>
+    <string name="riwayat_unknown_date">Unknown date</string>
+    <string name="riwayat_header_subtitle">Records of all your loans</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_logout">Confirm Logout</string>

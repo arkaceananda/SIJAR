@@ -26,8 +26,12 @@ import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.LoadingDots
+import com.example.sijar.ui.helper.ModernCard
+import com.example.sijar.ui.helper.RowDivider
+import com.example.sijar.ui.helper.SectionLabel
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.ProfileViewModel
 import kotlinx.coroutines.launch
 
@@ -252,7 +256,7 @@ fun ChangePassword(
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
-                                    text = stringResource(R.string.change_password_save),
+                                    text = stringResource(R.string.action_change_password),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 15.sp,
                                     color = White

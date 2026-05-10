@@ -40,8 +40,11 @@ import com.example.sijar.R
 import com.example.sijar.api.model.data.PhotoAction
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.api.utils.prepareFilePart
+import com.example.sijar.ui.helper.ModernCard
+import com.example.sijar.ui.helper.RowDivider
+import com.example.sijar.ui.helper.SectionLabel
 import com.example.sijar.ui.theme.*
-import com.example.sijar.ui.utils.asString
+import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.ProfileViewModel
 
 @Composable
@@ -461,44 +464,6 @@ fun ProfileHeader(
             )
         }
     }
-}
-
-/* HELPER COMPOSE */
-@Composable
-fun SectionLabel(text: String) {
-    Text(
-        text = text.uppercase(),
-        fontSize = 11.sp,
-        fontWeight = FontWeight.Bold,
-        color = TextMuted,
-        letterSpacing = 1.sp,
-        modifier = Modifier.padding(start = 20.dp, bottom = 8.dp)
-    )
-}
-
-@Composable
-fun ModernCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(modifier = Modifier.padding(vertical = 4.dp)) {
-            content()
-        }
-    }
-}
-
-@Composable
-fun RowDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(start = 56.dp, end = 16.dp),
-        color = BlueLighter,
-        thickness = 0.5.dp
-    )
 }
 
 @Composable
