@@ -1,23 +1,25 @@
 package com.example.sijar.viewModel
 
+import android.app.Application
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.Item
 import com.example.sijar.api.model.repository.ItemRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
+import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class BarangViewModel(
+class BarangViewModel @JvmOverloads constructor(
+    application: Application,
     private val repository: ItemRepository = ItemRepository(ApiClient.apiService)
-) : ViewModel() {
+) : BaseViewModel(application) {
 
     var barangState by mutableStateOf<UiState<List<Item>>>(UiState.Idle)
         private set
@@ -69,6 +71,12 @@ class BarangViewModel(
             if (!isRefreshing) {
                 barangState = UiState.Loading
             }
+
+            val token = getBearerToken() ?: run {
+                barangState = UiState.Error(ErrorType.Unauthorized)
+                return@launch
+            }
+
             val result = repository.getItems(selectedJurusan, debouncedQuery)
 
             barangState = when (result) {

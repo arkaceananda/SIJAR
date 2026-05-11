@@ -11,11 +11,11 @@ import java.io.IOException
 
 class WaktuRepository(private val apiService: ApiService) {
 
-    suspend fun getWaktuPembelajaran(): ApiResult<List<WaktuPeminjaman>> {
+    suspend fun getWaktuPembelajaran(token: String): ApiResult<List<WaktuPeminjaman>> {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.getWaktuPembelajaran()
+                    val response = apiService.getWaktuPembelajaran(token)
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) ApiResult.Success(body.data)

@@ -1,6 +1,5 @@
 package com.example.sijar.api.service
 
-import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.model.data.request.AuthRequest
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.*
@@ -23,14 +22,19 @@ interface ApiService {
     ): Response<ItemResponse>
 
     @GET("waktu")
-    suspend fun getWaktuPembelajaran(): Response<WaktuResponse>
+    suspend fun getWaktuPembelajaran(
+        @Header("Authorization") token: String
+    ): Response<WaktuResponse>
 
     @GET("peminjaman")
-    suspend fun getPeminjamanList (): Response<PeminjamanResponse>
+    suspend fun getPeminjamanList (
+        @Header("Authorization") token: String
+    ): Response<PeminjamanResponse>
 
     @Multipart
     @POST("peminjaman/store")
     suspend fun createPeminjaman(
+        @Header("Authorization") token: String,
         @Part("keperluan") keperluan: RequestBody,
         @Part("item_id") itemId: RequestBody,
         @Part("kode_unit") kodeUnit: RequestBody,
@@ -68,7 +72,7 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("id") userId: Int,
         @Part("name") name: RequestBody,
-        @Part("email") email: RequestBody,
+        @Part("kode") kode: RequestBody,
         @Part("telepon") telepon: RequestBody?,
         @Part("_method") method: RequestBody = "PUT".toRequestBody("text/plain".toMediaType())
     ): Response<UpdateProfileResponse>

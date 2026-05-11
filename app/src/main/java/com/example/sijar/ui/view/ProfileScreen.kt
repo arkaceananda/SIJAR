@@ -103,7 +103,7 @@ fun ProfileScreen(
                         item {
                             ProfileHeader(
                                 name = user.name,
-                                email = user.email,
+                                kode = user.kode,
                                 photoUrl = user.profile,
                                 onPhotoAction = { action ->
                                     when (action) {
@@ -129,7 +129,7 @@ fun ProfileScreen(
                                 InfoRow(
                                     icon = Icons.Outlined.Email,
                                     label = stringResource(R.string.profile_label_email),
-                                    value = user.email
+                                    value = user.kode
                                 )
                                 RowDivider()
                                 InfoRow(
@@ -270,7 +270,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileHeader(
     name: String,
-    email: String,
+    kode: String,
     photoUrl: String?,
     onPhotoAction: (PhotoAction) -> Unit
 ) {
@@ -457,7 +457,7 @@ fun ProfileHeader(
                 color = White
             )
             Text(
-                text = email,
+                text = kode,
                 fontSize = 13.sp,
                 color = BlueLight.copy(alpha = 0.8f),
                 modifier = Modifier.padding(top = 2.dp)

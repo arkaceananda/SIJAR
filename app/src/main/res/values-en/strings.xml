@@ -117,6 +117,10 @@
     <string name="form_label_proof">Photo Proof</string>
     <string name="form_hint">Fill out the loan form completely</string>
     <string name="form_action_pick_photo">Tap to pick photo</string>
+    <string name="form_label_jam_mulai">Jam Mulai</string>
+    <string name="form_label_jam_selesai">Jam Selesai</string>
+    <string name="form_hint_jam_mulai">Pilih jam</string>
+    <string name="form_hint_jam_selesai">Pilih jam</string>
 
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">You are not currently borrowing any items</string>

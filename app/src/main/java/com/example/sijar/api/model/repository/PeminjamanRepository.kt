@@ -21,7 +21,7 @@ class PeminjamanRepository(private val apiService: ApiService) {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.getPeminjamanList()
+                    val response = apiService.getPeminjamanList(token)
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) ApiResult.Success(body)
@@ -68,6 +68,7 @@ class PeminjamanRepository(private val apiService: ApiService) {
                 }
 
                 val response = apiService.createPeminjaman(
+                    token = token,
                     keperluan = keperluanBody,
                     itemId = itemIdBody,
                     kodeUnit = kodeUnitBody,

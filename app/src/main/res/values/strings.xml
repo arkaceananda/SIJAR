@@ -117,6 +117,10 @@
     <string name="form_label_proof">Foto Bukti</string>
     <string name="form_hint">Isi form peminjaman dengan lengkap</string>
     <string name="form_action_pick_photo">Tap untuk pilih foto</string>
+    <string name="form_label_jam_mulai">Jam Mulai</string>
+    <string name="form_label_jam_selesai">Jam Selesai</string>
+    <string name="form_hint_jam_mulai">Pilih jam</string>
+    <string name="form_hint_jam_selesai">Pilih jam</string>
 
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">Kamu tidak sedang meminjam barang apapun</string>

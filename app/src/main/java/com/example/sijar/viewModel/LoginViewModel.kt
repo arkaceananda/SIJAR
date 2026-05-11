@@ -12,7 +12,7 @@ import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
+class LoginViewModel @JvmOverloads constructor(
     private val repository: AuthRepository = AuthRepository(ApiClient.apiService)
 ) : ViewModel() {
 

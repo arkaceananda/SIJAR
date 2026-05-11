@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -50,7 +51,6 @@ import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.PeminjamanViewModel
 import com.example.sijar.viewModel.WaktuViewModel
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -320,10 +320,16 @@ fun PinjamBarang(
                         }
                     }
                     is UiState.Success -> {
-                        WaktuSelector(
+                        LaunchedEffect(waktuState.data) {
+                            peminjamanViewModel.setCachedWaktu(waktuState.data)
+                        }
+
+                        WaktuRangeSelector(
                             waktuList = waktuState.data,
-                            selectedWaktuIds = peminjamanViewModel.selectedWaktuIds,
-                            onToggle = { peminjamanViewModel.onWaktuToggled(it) }
+                            selectedJamMulai = peminjamanViewModel.selectedJamMulai,
+                            selectedJamSelesai = peminjamanViewModel.selectedJamSelesai,
+                            onJamMulaiSelected = { peminjamanViewModel.onJamMulaiSelected(it) },
+                            onJamSelesaiSelected = { peminjamanViewModel.onJamSelesaiSelected(it) }
                         )
                     }
                     is UiState.Error -> {
@@ -535,92 +541,225 @@ private fun SelectedItemCard(item: Item) {
 
 /* Time Selector */
 @Composable
-private fun WaktuSelector(
+fun WaktuRangeSelector(
     waktuList: List<WaktuPeminjaman>,
-    selectedWaktuIds: List<String>,
-    onToggle: (String) -> Unit
+    selectedJamMulai: WaktuPeminjaman?,
+    selectedJamSelesai: WaktuPeminjaman?,
+    onJamMulaiSelected: (WaktuPeminjaman) -> Unit,
+    onJamSelesaiSelected: (WaktuPeminjaman) -> Unit,
 ) {
-    fun WaktuPeminjaman.toJson(): String = JSONObject().apply {
-        put("jam_ke", jamKe)
-        put("start_time", startTime)
-        put("end_time", endTime)
-    }.toString()
+    val waktuSelesaiOptions = remember(selectedJamMulai, waktuList) {
+        if (selectedJamMulai == null) waktuList
+        else waktuList.filter { it.jamKe >= selectedJamMulai.jamKe }
+    }
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        waktuList.forEach { waktu ->
-            val json = waktu.toJson()
-            val isSelected = selectedWaktuIds.contains(json)
-            val view = LocalView.current
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        HapticHelper.performClick(view)
-                        onToggle(json) },
-                shape = RoundedCornerShape(12.dp),
-                color = if (isSelected) BluePrimary.copy(alpha = 0.08f) else White,
-                border = androidx.compose.foundation.BorderStroke(
-                    width = if (isSelected) 1.5.dp else 1.dp,
-                    color = if (isSelected) BluePrimary else BlueLighter
-                )
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = 14.dp,
-                        vertical = 12.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+        AnimatedVisibility(
+            visible = selectedJamMulai != null && selectedJamSelesai != null,
+            enter = fadeIn(tween(200)) + expandVertically(),
+            exit = fadeOut(tween(200)) + shrinkVertically()
+        ) {
+            if (selectedJamMulai != null && selectedJamSelesai != null) {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = BluePrimary.copy(alpha = 0.08f),
+                    border = BorderStroke(1.dp, BluePrimary.copy(alpha = 0.3f))
                 ) {
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(
-                                    if (isSelected) BluePrimary.copy(alpha = 0.12f)
-                                    else BlueLighter
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Outlined.Schedule,
-                                contentDescription = null,
-                                tint = if (isSelected) BluePrimary else TextMuted,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Column {
-                            Text(
-                                text = "Jam ke-${waktu.jamKe}",
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 14.sp,
-                                color = if (isSelected) BluePrimary else TextMain
-                            )
-                            Text(
-                                text = "${waktu.startTime} – ${waktu.endTime}",
-                                fontSize = 12.sp,
-                                color = TextMuted,
-                                modifier = Modifier.padding(top = 2.dp)
-                            )
-                        }
+                        Icon(
+                            Icons.Outlined.Schedule,
+                            contentDescription = null,
+                            tint = BluePrimary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "Jam ke-${selectedJamMulai.jamKe} " +
+                                    "(${selectedJamMulai.startTime}) " +
+                                    "→ Jam ke-${selectedJamSelesai.jamKe} " +
+                                    "(${selectedJamSelesai.endTime})",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = BluePrimary
+                        )
                     }
-
-                    Icon(
-                        imageVector = if (isSelected) Icons.Filled.CheckCircle
-                        else Icons.Outlined.Circle,
-                        contentDescription = null,
-                        tint = if (isSelected) BluePrimary else BlueLighter,
-                        modifier = Modifier.size(22.dp)
-                    )
                 }
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            WaktuDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.form_label_jam_mulai),
+                placeholder = stringResource(R.string.form_hint_jam_mulai),
+                waktuList = waktuList,
+                selectedWaktu = selectedJamMulai,
+                onSelected = onJamMulaiSelected
+            )
+
+            WaktuDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.form_label_jam_selesai),
+                placeholder = stringResource(R.string.form_hint_jam_selesai),
+                waktuList = waktuSelesaiOptions,
+                selectedWaktu = selectedJamSelesai,
+                onSelected = onJamSelesaiSelected,
+                enabled = selectedJamMulai != null
+            )
+        }
+    }
+}
+
+@Composable
+private fun WaktuDropdown(
+    modifier: Modifier = Modifier,
+    label: String,
+    placeholder: String,
+    waktuList: List<WaktuPeminjaman>,
+    selectedWaktu: WaktuPeminjaman?,
+    onSelected: (WaktuPeminjaman) -> Unit,
+    enabled: Boolean = true
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val view = LocalView.current
+
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (enabled) TextMuted else TextMuted.copy(alpha = 0.4f),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+
+        // Trigger button
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(enabled = enabled) {
+                    HapticHelper.performClick(view)
+                    expanded = true
+                },
+            shape = RoundedCornerShape(12.dp),
+            color = if (enabled) White else White.copy(alpha = 0.5f),
+            border = BorderStroke(
+                width = if (selectedWaktu != null) 1.5.dp else 1.dp,
+                color = when {
+                    !enabled -> BlueLighter.copy(alpha = 0.4f)
+                    selectedWaktu != null -> BluePrimary
+                    else -> BlueLighter
+                }
+            )
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    if (selectedWaktu != null) {
+                        Text(
+                            text = "Jam ke-${selectedWaktu.jamKe}",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = BluePrimary
+                        )
+                        Text(
+                            text = if (label.contains("Mulai", ignoreCase = true))
+                                selectedWaktu.startTime
+                            else
+                                selectedWaktu.endTime,
+                            fontSize = 11.sp,
+                            color = TextMuted
+                        )
+                    } else {
+                        Text(
+                            text = placeholder,
+                            fontSize = 13.sp,
+                            color = if (enabled) TextMuted else TextMuted.copy(alpha = 0.4f)
+                        )
+                    }
+                }
+
+                val rotation by animateFloatAsState(
+                    targetValue = if (expanded) 180f else 0f,
+                    animationSpec = tween(200),
+                    label = "chevron_rotation"
+                )
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = if (enabled) TextMuted else TextMuted.copy(alpha = 0.4f),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .graphicsLayer { rotationZ = rotation }
+                )
+            }
+        }
+
+        // Dropdown menu
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(White)
+                .widthIn(min = 160.dp)
+        ) {
+            waktuList.forEach { waktu ->
+                val isSelected = selectedWaktu?.jamKe == waktu.jamKe
+
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        if (isSelected) BluePrimary
+                                        else androidx.compose.ui.graphics.Color.Transparent
+                                    )
+                            )
+                            Column {
+                                Text(
+                                    text = "Jam ke-${waktu.jamKe}",
+                                    fontSize = 13.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold
+                                    else FontWeight.Normal,
+                                    color = if (isSelected) BluePrimary else TextMain
+                                )
+                                Text(
+                                    text = "${waktu.startTime} – ${waktu.endTime}",
+                                    fontSize = 11.sp,
+                                    color = TextMuted
+                                )
+                            }
+                        }
+                    },
+                    onClick = {
+                        HapticHelper.performClick(view)
+                        onSelected(waktu)
+                        expanded = false
+                    },
+                    modifier = Modifier.background(
+                        if (isSelected) BluePrimary.copy(alpha = 0.06f)
+                        else androidx.compose.ui.graphics.Color.Transparent
+                    )
+                )
             }
         }
     }

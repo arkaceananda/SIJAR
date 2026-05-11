@@ -50,7 +50,7 @@ fun EditProfile(
 
     var isVisible by remember { mutableStateOf(false) }
     var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var kode by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -62,7 +62,7 @@ fun EditProfile(
         if (profileState is UiState.Success) {
             val user = profileState.data
             fullName = user.name
-            email = user.email
+            kode = user.kode
             phone = user.telepon ?: ""
             isVisible = true
         }
@@ -227,9 +227,9 @@ fun EditProfile(
                                 EditFieldRow(
                                     icon = Icons.Outlined.Email,
                                     label = stringResource(R.string.profile_label_email),
-                                    value = email,
-                                    onValueChange = { email = it },
-                                    keyboardType = KeyboardType.Email,
+                                    value = kode,
+                                    onValueChange = { kode = it },
+                                    keyboardType = KeyboardType.Text,
                                     imeAction = ImeAction.Next,
                                     isEnabled = !isLoading
                                 )
@@ -284,13 +284,13 @@ fun EditProfile(
                                                     context.getString(R.string.profile_name_cannot_be_empty)
                                                 )
                                             }
-                                            email.isBlank() -> scope.launch {
+                                            kode.isBlank() -> scope.launch {
                                                 snackbarHostState.showSnackbar(
                                                     context.getString(R.string.email_cannot_be_empty)
                                                 )
                                             }
                                             else -> viewModel.updateProfile(
-                                                fullName, email, phone
+                                                fullName, kode, phone
                                             )
                                         }
                                     },

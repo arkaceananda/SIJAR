@@ -31,14 +31,36 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
     var isRefreshing by mutableStateOf(false)
         private set
 
+    var selectedJamMulai by mutableStateOf<WaktuPeminjaman?>(null)
+        private set
+
+    var selectedJamSelesai by mutableStateOf<WaktuPeminjaman?>(null)
+        private set
+
     var keperluan by mutableStateOf("")
         private set
     var selectedItemId by mutableStateOf<Int?>(null)
         private set
     var kodeUnit by mutableStateOf("")
         private set
-    var selectedWaktuIds by mutableStateOf<List<String>>(emptyList())
-        private set
+
+    private var _cachedWaktu = listOf<WaktuPeminjaman>()
+    val selectedWaktuIds: List<String>
+        get() {
+            val mulai = selectedJamMulai ?: return emptyList()
+            val selesai = selectedJamSelesai ?: return emptyList()
+            if (selesai.jamKe < mulai.jamKe) return emptyList()
+
+            return _cachedWaktu
+                .filter { it.jamKe in mulai.jamKe..selesai.jamKe }
+                .map { waktu ->
+                    JSONObject().apply {
+                        put("jam_ke", waktu.jamKe)
+                        put("start_time", waktu.startTime)
+                        put("end_time", waktu.endTime)
+                    }.toString()
+                }
+        }
     var selectedBuktiFoto by mutableStateOf<File?>(null)
         private set
 
@@ -71,7 +93,7 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
             }
 
             listState = when (val result = repository.getPeminjamanList(token)) {
-                is ApiResult.Success -> UiState.Success(result.data.data)
+                is ApiResult.Success -> UiState.Success(result.data.paginator.list)
                 is ApiResult.Error -> UiState.Error(result.type, result.message)
             }
         }
@@ -86,7 +108,7 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
     }
 
     fun submitPeminjaman(context: Context) {
-        if (selectedItemId == null || selectedWaktuIds.isEmpty() || selectedBuktiFoto == null) {
+        if (selectedJamMulai == null || selectedJamSelesai == null) {
             submitState = UiState.Error(ErrorType.BadRequest)
             return
         }
@@ -144,12 +166,19 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
     fun onKodeUnitChange(value: String) { kodeUnit = value }
     fun onBuktiFotoSelected(file: File) { selectedBuktiFoto = file }
 
-    fun onWaktuToggled(waktuJson: String) {
-        selectedWaktuIds = if (selectedWaktuIds.contains(waktuJson)) {
-            selectedWaktuIds - waktuJson
-        } else {
-            selectedWaktuIds + waktuJson
+    fun setCachedWaktu(waktuList: List<WaktuPeminjaman>) {
+        _cachedWaktu = waktuList
+    }
+
+    fun onJamMulaiSelected(waktu: WaktuPeminjaman) {
+        selectedJamMulai = waktu
+        if (selectedJamSelesai != null && selectedJamSelesai!!.jamKe < waktu.jamKe) {
+            selectedJamSelesai = null
         }
+    }
+
+    fun onJamSelesaiSelected(waktu: WaktuPeminjaman) {
+        selectedJamSelesai = waktu
     }
 
     fun resetSubmitState() { submitState = UiState.Idle }
@@ -158,7 +187,8 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
         keperluan = ""
         selectedItemId = null
         kodeUnit = ""
-        selectedWaktuIds = emptyList()
+        selectedJamMulai = null
+        selectedJamSelesai = null
         selectedBuktiFoto = null
         submitState = UiState.Idle
     }

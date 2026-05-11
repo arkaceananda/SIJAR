@@ -21,6 +21,7 @@ data class Peminjaman(
     @SerializedName("gambar_bukti")
     val gambarBukti: String? = null,
     val bukti: String? = null,
+    val tanggal: String? = null,
     @SerializedName("created_at")
     val createdAt: String? = null,
     @SerializedName("updated_at")

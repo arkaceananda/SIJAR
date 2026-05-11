@@ -46,12 +46,10 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
 
             when (val result = repository.getProfile(token)) {
                 is ApiResult.Success -> {
-                    val userData = result.data.data.firstOrNull()
-                    profileState = if (userData != null) {
+                    val userData = result.data.data
+                    profileState = run {
                         sessionManager.saveUserName(userData.name)
                         UiState.Success(userData)
-                    } else {
-                        UiState.Error(ErrorType.EmptyResponse)
                     }
                 }
                 is ApiResult.Error -> {
@@ -128,7 +126,7 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
 
     fun resetChangePasswordState() { changePasswordState = UiState.Idle }
 
-    fun updateProfile(name: String, email: String, telepon: String?) {
+    fun updateProfile(name: String, kode: String, telepon: String?) {
         viewModelScope.launch {
             updateProfileState = UiState.Loading
 
@@ -143,7 +141,7 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
             }
 
             updateProfileState = when (
-                val result = repository.updateProfile(token, userId, name, email, telepon)
+                val result = repository.updateProfile(token, userId, name, kode, telepon)
             ) {
                 is ApiResult.Success -> {
                     loadProfile()

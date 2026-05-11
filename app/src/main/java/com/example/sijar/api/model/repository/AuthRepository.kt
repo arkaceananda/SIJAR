@@ -16,7 +16,7 @@ class AuthRepository(private val apiService: ApiService) {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.login(AuthRequest(email = kodeKelas, password = password))
+                    val response = apiService.login(AuthRequest(kode = kodeKelas, password = password))
 
                     if (response.isSuccessful) {
                         val body = response.body()

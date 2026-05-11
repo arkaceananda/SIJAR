@@ -11,13 +11,29 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    const val BASE_URL = "http://10.0.2.2:8000/api/test/"
+    const val BASE_URL = "http://10.0.2.2:8000/api/v1/"
+
+    private var sessionManager: SessionManager? = null
+
+    fun init(sessionManager: SessionManager) {
+        this.sessionManager = sessionManager
+    }
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
     private val client = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            val requestBuilder = chain.request().newBuilder()
+            requestBuilder.addHeader("Accept", "application/json")
+            val token = sessionManager?.getToken()
+            if (!token.isNullOrEmpty()) {
+                requestBuilder.addHeader("Authorization", "Bearer $token")
+            }
+
+            chain.proceed(requestBuilder.build())
+        }
         .addInterceptor(logging)
         .build()
 

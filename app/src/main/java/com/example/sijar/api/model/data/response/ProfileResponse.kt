@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ProfileResponse(
     @SerializedName("data")
-    val data: List<Data>,
+    val data: Data,
     @SerializedName("message")
     val message: String,
     @SerializedName("status")
@@ -16,16 +16,16 @@ data class Data(
     val id: Int,
     @SerializedName("name")
     val name: String,
-    @SerializedName("email")
-    val email: String,
+    @SerializedName("kode")
+    val kode: String,
     @SerializedName("kelas")
-    val kelas: String,
+    val kelas: String? = null,
     @SerializedName("telepon")
     val telepon: String?,
     @SerializedName("profile")
     val profile: String?,
     @SerializedName("role")
-    val role: String,
+    val role: String? = null,
     @SerializedName("jurusan_id")
     val jurusanId: Int,
     @SerializedName("kategori_id")

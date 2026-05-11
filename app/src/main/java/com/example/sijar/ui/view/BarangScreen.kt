@@ -383,7 +383,7 @@ fun BarangGridCard(
                     .weight(1.8f)
             ) {
                 AsyncImage(
-                    model = "${ApiClient.BASE_URL}storage/barang/${barang.fotoBarang}",
+                    model = "${ApiClient.BASE_URL}storage/encrypted/${barang.fotoBarang}",
                     contentDescription = barang.namaItem,
                     modifier = Modifier
                         .fillMaxSize()
@@ -512,7 +512,7 @@ fun BarangDetailSheet(
                 .height(260.dp)
         ) {
             AsyncImage(
-                model = "${ApiClient.BASE_URL}storage/barang/${item.fotoBarang}",
+                model = "${ApiClient.BASE_URL}storage/encrypted/${item.fotoBarang}",
                 contentDescription = item.namaItem,
                 modifier = Modifier
                     .fillMaxSize()

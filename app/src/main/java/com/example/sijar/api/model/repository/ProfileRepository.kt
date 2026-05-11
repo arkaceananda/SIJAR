@@ -1,6 +1,5 @@
 package com.example.sijar.api.model.repository
 
-import android.R.attr.type
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.ProfileResponse
 import com.example.sijar.api.model.data.response.UpdatePasswordResponse
@@ -105,13 +104,13 @@ class ProfileRepository(private val apiService: ApiService) {
         token: String,
         userId: Int,
         name: String,
-        email: String,
+        kode: String,
         telepon: String?
     ): ApiResult<UpdateProfileResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val namePart = name.toRequestBody("text/plain".toMediaType())
-                val emailPart = email.toRequestBody("text/plain".toMediaType())
+                val kodePart = kode.toRequestBody("text/plain".toMediaType())
                 val teleponPart = telepon?.toRequestBody("text/plain".toMediaType())
                 val methodPart = "PUT".toRequestBody("text/plain".toMediaType())
 
@@ -119,7 +118,7 @@ class ProfileRepository(private val apiService: ApiService) {
                     token = token,
                     userId = userId,
                     name = namePart,
-                    email = emailPart,
+                    kode = kodePart,
                     telepon = teleponPart,
                     method = methodPart
                 )

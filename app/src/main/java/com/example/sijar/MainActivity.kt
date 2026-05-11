@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.ui.view.BarangScreen
 import com.example.sijar.ui.view.ChangePassword
@@ -31,6 +32,8 @@ import com.example.sijar.viewModel.PeminjamanViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val sessionManager = SessionManager.getInstance(applicationContext)
+        ApiClient.init(sessionManager)
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

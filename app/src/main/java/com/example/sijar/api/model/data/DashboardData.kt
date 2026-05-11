@@ -4,10 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 
 data class DashboardData(
-    @SerializedName("riwayat_terakhir")
-    val peminjamanTerbaru: List<Peminjaman>,
+    @SerializedName("peminjaman_terbaru")
+    val peminjamanTerbaru: List<Peminjaman> = emptyList(),
     @SerializedName("total_dipinjam")
-    val totalDipinjam: Int,
+    val totalDipinjam: Int = 0,
     @SerializedName("total_selesai")
-    val totalSelesai: Int
+    val totalSelesai: Int = 0
 )
