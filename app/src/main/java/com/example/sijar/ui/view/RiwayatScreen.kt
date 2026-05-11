@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.HapticHelper
 import com.example.sijar.ui.helper.ModernCard
 import com.example.sijar.ui.helper.RowDivider
 import com.example.sijar.ui.helper.asString
@@ -42,6 +44,7 @@ fun RiwayatScreen(
     val listState = peminjamanViewModel.listState
     val isRefreshing = peminjamanViewModel.isRefreshing
     var isVisible by remember { mutableStateOf(false) }
+    val view = LocalView.current
 
     LaunchedEffect(Unit) { isVisible = true }
 
@@ -52,7 +55,10 @@ fun RiwayatScreen(
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = { peminjamanViewModel.refresh() },
+            onRefresh = {
+                HapticHelper.performClick(view)
+                peminjamanViewModel.refresh()
+                        },
             modifier = Modifier.fillMaxSize()
         ) {
             AnimatedVisibility(

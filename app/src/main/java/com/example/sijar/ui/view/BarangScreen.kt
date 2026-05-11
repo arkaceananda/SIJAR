@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,6 +37,7 @@ import com.example.sijar.api.model.data.Item
 import com.example.sijar.api.model.data.JurusanFilter
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.HapticHelper
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.BarangViewModel
@@ -72,6 +74,8 @@ fun BarangScreen(
         JurusanFilter(stringResource(R.string.category_ps), 5, ColorPS)
     )
 
+    val view = LocalView.current
+
     selectedItem?.let { item ->
         ModalBottomSheet(
             onDismissRequest = { selectedItem = null },
@@ -100,7 +104,10 @@ fun BarangScreen(
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = { viewModel.refresh() }
+            onRefresh = {
+                HapticHelper.performClick(view)
+                viewModel.refresh()
+            }
         ) {
             LazyColumn(
                 modifier = Modifier

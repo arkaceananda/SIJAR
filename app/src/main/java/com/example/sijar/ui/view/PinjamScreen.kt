@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,12 +36,15 @@ import com.example.sijar.R
 import com.example.sijar.api.model.data.Item
 import com.example.sijar.api.model.data.WaktuPeminjaman
 import com.example.sijar.api.utils.ApiClient
+import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.ImagePickerHelper
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.HapticHelper
 import com.example.sijar.ui.helper.LoadingDots
 import com.example.sijar.ui.helper.ModernCard
 import com.example.sijar.ui.helper.RowDivider
 import com.example.sijar.ui.helper.SectionLabel
+import com.example.sijar.ui.helper.ShakeEffect
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.PeminjamanViewModel
@@ -57,6 +61,7 @@ fun PinjamBarang(
     waktuViewModel: WaktuViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
     val submitState = peminjamanViewModel.submitState
     val waktuState = waktuViewModel.waktuState
     val snackbarHostState = remember { SnackbarHostState() }
@@ -66,6 +71,8 @@ fun PinjamBarang(
     // Resolve di composable context
     val resolvedErrorMessage = (submitState as? UiState.Error)?.asString()
     val isLoading = submitState is UiState.Loading
+    val hasValidation = submitState is UiState.Error &&
+            (submitState as UiState.Error).type is ErrorType.BadRequest
 
     LaunchedEffect(Unit) { isVisible = true }
 
@@ -76,6 +83,7 @@ fun PinjamBarang(
     LaunchedEffect(submitState) {
         when (submitState) {
             is UiState.Success -> {
+                HapticHelper.performClick(view)
                 peminjamanViewModel.resetForm()
                 onSuccess()
             }
@@ -344,10 +352,12 @@ fun PinjamBarang(
                 // ── Upload bukti ──
                 SectionLabel(stringResource(R.string.form_label_proof))
                 Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    BuktiFotoSelector(
-                        selectedFile = peminjamanViewModel.selectedBuktiFoto,
-                        onPickImage = { imagePickerLauncher.launch("image/*") }
-                    )
+                    ShakeEffect(trigger = hasValidation) {
+                        BuktiFotoSelector(
+                            selectedFile = peminjamanViewModel.selectedBuktiFoto,
+                            onPickImage = { imagePickerLauncher.launch("image/*") }
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(28.dp))
@@ -543,12 +553,14 @@ private fun WaktuSelector(
         waktuList.forEach { waktu ->
             val json = waktu.toJson()
             val isSelected = selectedWaktuIds.contains(json)
-
+            val view = LocalView.current
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { onToggle(json) },
+                    .clickable {
+                        HapticHelper.performClick(view)
+                        onToggle(json) },
                 shape = RoundedCornerShape(12.dp),
                 color = if (isSelected) BluePrimary.copy(alpha = 0.08f) else White,
                 border = androidx.compose.foundation.BorderStroke(

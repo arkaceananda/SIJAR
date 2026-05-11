@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -15,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +29,9 @@ import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.api.utils.greetingDay
 import com.example.sijar.api.utils.greetingTime
+import com.example.sijar.ui.helper.AnimatedCounter
+import com.example.sijar.ui.helper.HapticHelper
+import com.example.sijar.ui.helper.PulsingBadge
 import com.example.sijar.ui.helper.SectionLabel
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
@@ -39,11 +45,21 @@ fun DashboardScreen(
     peminjamanViewModel: PeminjamanViewModel = viewModel()
 ) {
     val uiState = dashboardViewModel.dashboardState
+    val view = LocalView.current
     val isRefreshing = dashboardViewModel.isRefreshing
+    val listState = rememberLazyListState()
     val peminjamanListState = peminjamanViewModel.listState
     var isVisible by remember { mutableStateOf(false) }
+    val previousListState = remember { mutableStateOf<UiState<*>>(UiState.Idle) }
 
     LaunchedEffect(Unit) { isVisible = true }
+
+    LaunchedEffect(peminjamanListState) {
+        if (previousListState.value is UiState.Loading &&
+            peminjamanListState is UiState.Success
+        ) { listState.animateScrollToItem(0) }
+        previousListState.value = peminjamanListState
+    }
 
     Box(
         modifier = Modifier
@@ -52,7 +68,10 @@ fun DashboardScreen(
     ) {
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = { dashboardViewModel.refresh() },
+            onRefresh = {
+                HapticHelper.performClick(view)
+                dashboardViewModel.refresh()
+                        },
             modifier = Modifier.fillMaxSize()
         ) {
             AnimatedVisibility(
@@ -66,6 +85,7 @@ fun DashboardScreen(
                 ) + fadeIn(tween(300))
             ) {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
@@ -305,11 +325,13 @@ fun DashboardStatCard(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = count.toString(),
-                fontSize = 26.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = White
+            AnimatedCounter(
+                count = count,
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = White
+                )
             )
             Text(
                 text = label,
@@ -363,20 +385,24 @@ fun PeminjamanCard(peminjaman: Peminjaman) {
                     )
                 }
 
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = badgeColor.copy(alpha = 0.15f)
-                ) {
-                    Text(
-                        text = statusText,
-                        modifier = Modifier.padding(
-                            horizontal = 10.dp,
-                            vertical = 4.dp
-                        ),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = badgeColor
-                    )
+                if (peminjaman.statusTujuan?.lowercase() == "pending") {
+                    PulsingBadge(text = statusText, color = badgeColor)
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = badgeColor.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = statusText,
+                            modifier = Modifier.padding(
+                                horizontal = 10.dp,
+                                vertical = 4.dp
+                            ),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = badgeColor
+                        )
+                    }
                 }
             }
 
