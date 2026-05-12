@@ -7,15 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.WaktuPeminjaman
 import com.example.sijar.api.model.repository.WaktuRepository
-import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
-import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
 
-class WaktuViewModel(application: Application) : BaseViewModel(application) {
-
-    private val repository = WaktuRepository(ApiClient.apiService)
+class WaktuViewModel(application: Application, private val repository: WaktuRepository) : BaseViewModel(application) {
 
     var waktuState by mutableStateOf<UiState<List<WaktuPeminjaman>>>(UiState.Loading)
         private set
@@ -27,13 +23,7 @@ class WaktuViewModel(application: Application) : BaseViewModel(application) {
     private fun fetchWaktu() {
         viewModelScope.launch {
             waktuState = UiState.Loading
-
-            val token = getBearerToken() ?: run {
-                waktuState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-
-            waktuState = when (val result = repository.getWaktuPembelajaran(token)) {
+            waktuState = when (val result = repository.getWaktuPembelajaran()) {
                 is ApiResult.Success -> UiState.Success(result.data)
                 is ApiResult.Error -> UiState.Error(result.type, result.message)
             }

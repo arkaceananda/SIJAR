@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -304,7 +305,7 @@ fun BarangScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             rowItems.forEach { barang ->
                                 BarangGridCard(
@@ -317,7 +318,7 @@ fun BarangScreen(
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
 
                     if (uiState is UiState.Loading && barangList.isNotEmpty()) {
@@ -400,18 +401,18 @@ fun BarangGridCard(
 
     Card(
         modifier = modifier
-            .aspectRatio(0.72f)
+            .height(260.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
+        Column(modifier = Modifier.fillMaxSize()) {
             /* Image */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1.8f)
+                    .height(140.dp)
             ) {
                 AsyncImage(
                     model = "${ApiClient.BASE_URL}storage/encrypted/${barang.fotoBarang}",
@@ -441,30 +442,14 @@ fun BarangGridCard(
                         letterSpacing = 0.3.sp
                     )
                 }
-
-                /* Darker overlay */
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.08f)
-                                )
-                            )
-                        )
-                )
             }
 
             /* Item's Info */
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                    .padding(10.dp)
+                    .weight(1f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
@@ -475,7 +460,8 @@ fun BarangGridCard(
                         fontWeight = FontWeight.Bold,
                         color = TextMain,
                         maxLines = 2,
-                        lineHeight = 17.sp
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 16.sp
                     )
                     Text(
                         text = barang.kategoriJurusan?.namaKategori
@@ -491,7 +477,7 @@ fun BarangGridCard(
                     onClick = onClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(32.dp),
+                        .height(34.dp),
                     shape = RoundedCornerShape(8.dp),
                     enabled = tersedia,
                     contentPadding = PaddingValues(0.dp),
@@ -753,7 +739,7 @@ fun SheetInfoRow(
 @Composable
 fun BarangGridSkeleton(modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.aspectRatio(0.72f),
+        modifier = modifier.height(260.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(0.dp)
@@ -762,7 +748,7 @@ fun BarangGridSkeleton(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1.8f)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     .shimmerEffect()
             )

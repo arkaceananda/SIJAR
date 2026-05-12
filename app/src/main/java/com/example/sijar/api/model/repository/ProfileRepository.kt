@@ -15,15 +15,14 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
-import java.io.IOException
 
 class ProfileRepository(private val apiService: ApiService) {
 
-    suspend fun getProfile(token: String): ApiResult<ProfileResponse> {
+    suspend fun getProfile(): ApiResult<ProfileResponse> {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.getProfile(token)
+                    val response = apiService.getProfile()
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) ApiResult.Success(body)
@@ -31,34 +30,29 @@ class ProfileRepository(private val apiService: ApiService) {
                     } else {
                         ApiResult.Error(ErrorType.Unknown)
                     }
-                } catch (_: IOException) {
-                    ApiResult.Error(ErrorType.Network)
-                } catch (_: Exception) {
-                    ApiResult.Error(ErrorType.Unknown)
+                } catch (e: Exception) {
+                    ApiResult.Error(ErrorType.Network, e.localizedMessage)
                 }
             }
         }
     }
 
-    suspend fun changePassword(token: String, request: UpdatePasswordRequest): ApiResult<UpdatePasswordResponse> {
+    suspend fun changePassword(request: UpdatePasswordRequest): ApiResult<UpdatePasswordResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = apiService.updatePassword(token, request)
+                val response = apiService.updatePassword(request)
                 if (response.isSuccessful && response.body() != null) {
                     ApiResult.Success(response.body()!!)
                 } else {
                     ApiResult.Error(ErrorType.BadRequest)
                 }
-            } catch (_: IOException) {
-                ApiResult.Error(ErrorType.Network)
-            } catch (_: Exception) {
-                ApiResult.Error(ErrorType.Unknown)
+            } catch (e: Exception) {
+                ApiResult.Error(ErrorType.Network, e.localizedMessage)
             }
         }
     }
 
     suspend fun updateProfile(
-        token: String,
         userId: Int,
         name: String,
         kode: String,
@@ -79,7 +73,6 @@ class ProfileRepository(private val apiService: ApiService) {
                 }
 
                 val response = apiService.updateProfile(
-                    token = token,
                     userId = userId,
                     name = namePart,
                     kode = kodePart,
@@ -93,10 +86,8 @@ class ProfileRepository(private val apiService: ApiService) {
                 } else {
                     ApiResult.Error(ErrorType.Validation, response.errorBody()?.string())
                 }
-            } catch (_: IOException) {
-                ApiResult.Error(ErrorType.Network)
-            } catch (_: Exception) {
-                ApiResult.Error(ErrorType.Unknown)
+            } catch (e: Exception) {
+                ApiResult.Error(ErrorType.Network, e.localizedMessage)
             }
         }
     }

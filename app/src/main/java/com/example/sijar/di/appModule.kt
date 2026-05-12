@@ -5,7 +5,6 @@ import com.example.sijar.api.model.repository.DashboardRepository
 import com.example.sijar.api.model.repository.ItemRepository
 import com.example.sijar.api.model.repository.PeminjamanRepository
 import com.example.sijar.api.model.repository.ProfileRepository
-import com.example.sijar.api.model.repository.RiwayatRepository
 import com.example.sijar.api.model.repository.WaktuRepository
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.viewModel.BarangViewModel
@@ -25,7 +24,6 @@ val appModule = module {
     singleOf(::ItemRepository)
     singleOf(::PeminjamanRepository)
     singleOf(::ProfileRepository)
-    singleOf(::RiwayatRepository)
     singleOf(::WaktuRepository)
 
     viewModelOf(::LoginViewModel)

@@ -22,19 +22,14 @@ interface ApiService {
     ): Response<ItemResponse>
 
     @GET("waktu")
-    suspend fun getWaktuPembelajaran(
-        @Header("Authorization") token: String
-    ): Response<WaktuResponse>
+    suspend fun getWaktuPembelajaran(): Response<WaktuResponse>
 
     @GET("peminjaman")
-    suspend fun getPeminjamanList (
-        @Header("Authorization") token: String
-    ): Response<PeminjamanResponse>
+    suspend fun getPeminjamanList(): Response<PeminjamanResponse>
 
     @Multipart
     @POST("peminjaman/store")
     suspend fun createPeminjaman(
-        @Header("Authorization") token: String,
         @Part("keperluan") keperluan: RequestBody,
         @Part("item_id") itemId: RequestBody,
         @Part("kode_unit") kodeUnit: RequestBody,
@@ -43,21 +38,19 @@ interface ApiService {
     ): Response<CreatePeminjamanResponse>
 
     @GET("homepage")
-    suspend fun getDashboard(@Header("Authorization") token: String): Response<DashboardResponse>
+    suspend fun getDashboard(): Response<DashboardResponse>
 
     @GET("profile")
-    suspend fun getProfile(@Header("Authorization") token: String): Response<ProfileResponse>
+    suspend fun getProfile(): Response<ProfileResponse>
 
     @PATCH("profile/password/update")
     suspend fun updatePassword(
-        @Header("Authorization") token: String,
         @Body request: UpdatePasswordRequest
     ): Response<UpdatePasswordResponse>
 
     @Multipart
     @POST("profile/update/{id}")
     suspend fun updateProfile(
-        @Header("Authorization") token: String,
         @Path("id") userId: Int,
         @Part("name") name: RequestBody,
         @Part("kode") kode: RequestBody,

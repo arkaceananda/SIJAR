@@ -17,7 +17,6 @@ import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
 import java.io.File
 
 class ProfileViewModel(application: Application) : BaseViewModel(application) {
@@ -40,13 +39,7 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
     fun loadProfile() {
         viewModelScope.launch {
             profileState = UiState.Loading
-
-            val token = getBearerToken() ?: run {
-                profileState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-
-            when (val result = repository.getProfile(token)) {
+            when (val result = repository.getProfile()) {
                 is ApiResult.Success -> {
                     val userData = result.data.data
                     profileState = run {
@@ -86,15 +79,8 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
     fun changePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
         viewModelScope.launch {
             changePasswordState = UiState.Loading
-
-            val token = getBearerToken() ?: run {
-                changePasswordState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-
             changePasswordState = when (
                 val result = repository.changePassword(
-                    token,
                     UpdatePasswordRequest(currentPassword, newPassword, confirmPassword)
                 )
             ) {
@@ -115,19 +101,13 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
     ) {
         viewModelScope.launch {
             updateProfileState = UiState.Loading
-
-            val token = getBearerToken() ?: run {
-                updateProfileState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-
             val userId = (profileState as? UiState.Success)?.data?.id ?: run {
                 updateProfileState = UiState.Error(ErrorType.Unknown)
                 return@launch
             }
 
             updateProfileState = when (
-                val result = repository.updateProfile(token, userId, name, kode, telepon, removePhoto, photoFile)
+                val result = repository.updateProfile(userId, name, kode, telepon, removePhoto, photoFile)
             ) {
                 is ApiResult.Success -> {
                     loadProfile()

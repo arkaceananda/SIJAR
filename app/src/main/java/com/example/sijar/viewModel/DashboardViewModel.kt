@@ -10,7 +10,6 @@ import com.example.sijar.api.utils.UiState
 import com.example.sijar.api.model.data.DashboardData
 import com.example.sijar.api.model.repository.DashboardRepository
 import com.example.sijar.api.utils.ApiResult
-import com.example.sijar.api.utils.ErrorType
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(application: Application) : BaseViewModel(application) {
@@ -31,12 +30,7 @@ class DashboardViewModel(application: Application) : BaseViewModel(application) 
     private fun fetchDashboard() {
         viewModelScope.launch {
             dashboardState = UiState.Loading
-
-            val token = getBearerToken() ?: run {
-                dashboardState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-            dashboardState = when (val result = repository.getDashboardData(token)) {
+            dashboardState = when (val result = repository.getDashboardData()) {
                 is ApiResult.Success -> UiState.Success(result.data.data)
                 is ApiResult.Error -> UiState.Error(result.type)
             }

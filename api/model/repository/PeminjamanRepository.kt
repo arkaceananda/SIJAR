@@ -13,6 +13,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.io.IOException
 
 class PeminjamanRepository(private val apiService: ApiService) {
 

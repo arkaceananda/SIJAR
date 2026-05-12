@@ -86,13 +86,7 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
     fun fetchPeminjamanList() {
         viewModelScope.launch {
             listState = UiState.Loading
-
-            val token = getBearerToken() ?: run {
-                listState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-
-            listState = when (val result = repository.getPeminjamanList(token)) {
+            listState = when (val result = repository.getPeminjamanList()) {
                 is ApiResult.Success -> UiState.Success(result.data.paginator.list)
                 is ApiResult.Error -> UiState.Error(result.type, result.message)
             }
@@ -116,13 +110,7 @@ class PeminjamanViewModel(application: Application) : BaseViewModel(application)
         viewModelScope.launch {
             submitState = UiState.Loading
 
-            val token = getBearerToken() ?: run {
-                submitState = UiState.Error(ErrorType.Unauthorized)
-                return@launch
-            }
-
             when (val result = repository.createPeminjaman(
-                token = token,
                 keperluan = keperluan,
                 itemId = selectedItemId!!,
                 kodeUnit = kodeUnit.ifBlank { null },

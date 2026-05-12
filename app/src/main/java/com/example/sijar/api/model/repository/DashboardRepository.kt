@@ -7,15 +7,14 @@ import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.retryCall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.IOException
 
 class DashboardRepository(private val apiService: ApiService) {
 
-    suspend fun getDashboardData(token: String): ApiResult<DashboardResponse> {
+    suspend fun getDashboardData(): ApiResult<DashboardResponse> {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.getDashboard(token)
+                    val response = apiService.getDashboard()
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) {
@@ -26,10 +25,8 @@ class DashboardRepository(private val apiService: ApiService) {
                     } else {
                         ApiResult.Error(ErrorType.Unknown)
                     }
-                } catch (_: IOException) {
-                    ApiResult.Error(ErrorType.Network)
-                } catch (_: Exception) {
-                    ApiResult.Error(ErrorType.Unknown)
+                } catch (e: Exception) {
+                    ApiResult.Error(ErrorType.Network, e.localizedMessage)
                 }
             }
         }
