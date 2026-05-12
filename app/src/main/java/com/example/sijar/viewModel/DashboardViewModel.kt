@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.UiState
@@ -12,7 +11,6 @@ import com.example.sijar.api.model.data.DashboardData
 import com.example.sijar.api.model.repository.DashboardRepository
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.ErrorType
-import com.example.sijar.api.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(application: Application) : BaseViewModel(application) {
@@ -24,7 +22,7 @@ class DashboardViewModel(application: Application) : BaseViewModel(application) 
     var isRefreshing by mutableStateOf(false)
         private set
 
-    val userName: String get() = sessionManager.getUserName()
+    val userName: String get() = sessionManager.getUserKode()
 
     init {
         fetchDashboard()

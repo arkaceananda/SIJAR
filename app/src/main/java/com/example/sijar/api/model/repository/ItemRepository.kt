@@ -12,12 +12,13 @@ import java.io.IOException
 class ItemRepository(private val apiService: ApiService) {
     suspend fun getItems(
         kategoriId: Int? = null,
-        search: String? = null
+        search: String? = null,
+        page: Int = 1
     ): ApiResult<ItemResponse> {
         return withContext(Dispatchers.IO) {
             retryCall {
                 try {
-                    val response = apiService.getItems(kategoriId, search)
+                    val response = apiService.getItems(kategoriId, search, page)
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) {

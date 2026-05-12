@@ -12,7 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.io.IOException
 
 class ProfileRepository(private val apiService: ApiService) {
@@ -27,52 +29,13 @@ class ProfileRepository(private val apiService: ApiService) {
                         if (body != null) ApiResult.Success(body)
                         else ApiResult.Error(ErrorType.EmptyResponse)
                     } else {
-                        val type = when(response.code()) {
-                            401 -> ErrorType.Unknown
-                            500 -> ErrorType.Server
-                            else -> ErrorType.Unknown
-                        }
-                        ApiResult.Error(type)
+                        ApiResult.Error(ErrorType.Unknown)
                     }
                 } catch (_: IOException) {
                     ApiResult.Error(ErrorType.Network)
                 } catch (_: Exception) {
                     ApiResult.Error(ErrorType.Unknown)
                 }
-            }
-        }
-    }
-
-    suspend fun updatePhoto(token: String, photo: MultipartBody.Part): ApiResult<ProfileResponse> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = apiService.updateProfilePhoto(token, photo)
-                if (response.isSuccessful && response.body() != null) {
-                    ApiResult.Success(response.body()!!)
-                } else {
-                    ApiResult.Error(ErrorType.Unknown)
-                }
-            } catch (_: IOException) {
-                ApiResult.Error(ErrorType.Network)
-            } catch (_: Exception) {
-                ApiResult.Error(ErrorType.Unknown)
-            }
-        }
-    }
-
-    suspend fun deletePhoto(token: String): ApiResult<ProfileResponse> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = apiService.deleteProfilePhoto(token)
-                if (response.isSuccessful && response.body() != null) {
-                    ApiResult.Success(response.body()!!)
-                } else {
-                    ApiResult.Error(ErrorType.Unknown)
-                }
-            } catch (_: IOException) {
-                ApiResult.Error(ErrorType.Network)
-            } catch (_: Exception) {
-                ApiResult.Error(ErrorType.Unknown)
             }
         }
     }
@@ -84,13 +47,7 @@ class ProfileRepository(private val apiService: ApiService) {
                 if (response.isSuccessful && response.body() != null) {
                     ApiResult.Success(response.body()!!)
                 } else {
-                    val type = when(response.code()) {
-                        400 -> ErrorType.BadRequest
-                        401 -> ErrorType.Unauthorized
-                        500 -> ErrorType.Server
-                        else -> ErrorType.Unknown
-                    }
-                    ApiResult.Error(type)
+                    ApiResult.Error(ErrorType.BadRequest)
                 }
             } catch (_: IOException) {
                 ApiResult.Error(ErrorType.Network)
@@ -105,14 +62,21 @@ class ProfileRepository(private val apiService: ApiService) {
         userId: Int,
         name: String,
         kode: String,
-        telepon: String?
+        telepon: String?,
+        removePhoto: Boolean,
+        photoFile: File?
     ): ApiResult<UpdateProfileResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val namePart = name.toRequestBody("text/plain".toMediaType())
                 val kodePart = kode.toRequestBody("text/plain".toMediaType())
-                val teleponPart = telepon?.toRequestBody("text/plain".toMediaType())
-                val methodPart = "PUT".toRequestBody("text/plain".toMediaType())
+                val teleponPart = (telepon ?: "").toRequestBody("text/plain".toMediaType())
+                val removePhotoPart = removePhoto.toString().toRequestBody("text/plain".toMediaType())
+                
+                val photoPart = photoFile?.let { 
+                    val body = it.asRequestBody("image/jpeg".toMediaType())
+                    MultipartBody.Part.createFormData("profile", it.name, body)
+                }
 
                 val response = apiService.updateProfile(
                     token = token,
@@ -120,24 +84,14 @@ class ProfileRepository(private val apiService: ApiService) {
                     name = namePart,
                     kode = kodePart,
                     telepon = teleponPart,
-                    method = methodPart
+                    removePhoto = removePhotoPart,
+                    profile = photoPart
                 )
 
                 if (response.isSuccessful && response.body() != null) {
                     ApiResult.Success(response.body()!!)
                 } else {
-                    val type = when (response.code()) {
-                        401  -> ErrorType.Unauthorized
-                        422  -> ErrorType.Validation
-                        404  -> ErrorType.Unknown
-                        500  -> ErrorType.Server
-                        else -> ErrorType.Unknown
-                    }
-                    val errorMsg = try {
-                        response.errorBody()?.string()
-                    } catch (_: Exception) { null }
-
-                    ApiResult.Error(type, errorMsg)
+                    ApiResult.Error(ErrorType.Validation, response.errorBody()?.string())
                 }
             } catch (_: IOException) {
                 ApiResult.Error(ErrorType.Network)

@@ -3,7 +3,6 @@ package com.example.sijar.api.service
 import com.example.sijar.api.model.data.request.AuthRequest
 import com.example.sijar.api.model.data.request.UpdatePasswordRequest
 import com.example.sijar.api.model.data.response.*
-import com.example.sijar.api.model.data.response.UpdatePasswordResponse
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -18,7 +17,8 @@ interface ApiService {
     @GET("barang")
     suspend fun getItems(
         @Query("kategori_jurusan_id") kategoriId: Int?,
-        @Query("search") search: String?
+        @Query("search") search: String?,
+        @Query("page") page: Int
     ): Response<ItemResponse>
 
     @GET("waktu")
@@ -48,18 +48,6 @@ interface ApiService {
     @GET("profile")
     suspend fun getProfile(@Header("Authorization") token: String): Response<ProfileResponse>
 
-    @Multipart
-    @POST("profile/update-photo")
-    suspend fun updateProfilePhoto(
-        @Header("Authorization") token: String,
-        @Part photo: MultipartBody.Part
-    ): Response<ProfileResponse>
-
-    @DELETE("profile/delete-photo")
-    suspend fun deleteProfilePhoto(
-        @Header("Authorization") token: String
-    ): Response<ProfileResponse>
-
     @PATCH("profile/password/update")
     suspend fun updatePassword(
         @Header("Authorization") token: String,
@@ -74,6 +62,8 @@ interface ApiService {
         @Part("name") name: RequestBody,
         @Part("kode") kode: RequestBody,
         @Part("telepon") telepon: RequestBody?,
+        @Part("remove_photo") removePhoto: RequestBody?,
+        @Part profile: MultipartBody.Part?,
         @Part("_method") method: RequestBody = "PUT".toRequestBody("text/plain".toMediaType())
     ): Response<UpdateProfileResponse>
 }

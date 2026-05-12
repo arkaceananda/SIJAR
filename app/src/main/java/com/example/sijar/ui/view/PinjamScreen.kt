@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.sijar.R
 import com.example.sijar.api.model.data.Item
@@ -51,14 +50,15 @@ import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.PeminjamanViewModel
 import com.example.sijar.viewModel.WaktuViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PinjamBarang(
     selectedItem: Item?,
     onSuccess: () -> Unit,
-    peminjamanViewModel: PeminjamanViewModel = viewModel(),
-    waktuViewModel: WaktuViewModel = viewModel()
+    peminjamanViewModel: PeminjamanViewModel = koinViewModel(),
+    waktuViewModel: WaktuViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -71,8 +71,7 @@ fun PinjamBarang(
     // Resolve di composable context
     val resolvedErrorMessage = (submitState as? UiState.Error)?.asString()
     val isLoading = submitState is UiState.Loading
-    val hasValidation = submitState is UiState.Error &&
-            (submitState as UiState.Error).type is ErrorType.BadRequest
+    val hasValidation = submitState is UiState.Error && submitState.type is ErrorType.BadRequest
 
     LaunchedEffect(Unit) { isVisible = true }
 
@@ -432,6 +431,7 @@ fun PinjamBarangHeader() {
                 }
                 drawPath(path = path, color = BlueDark)
             }
+            .navigationBarsPadding()
             .statusBarsPadding()
             .padding(bottom = 52.dp)
     ) {

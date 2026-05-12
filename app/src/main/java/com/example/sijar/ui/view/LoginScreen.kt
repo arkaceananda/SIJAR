@@ -23,7 +23,6 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
@@ -31,13 +30,17 @@ import com.example.sijar.ui.helper.LoadingDots
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.LoginViewModel
+import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 private val EaseInOutSine = CubicBezierEasing(0.37f, 0f, 0.63f, 1f)
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    viewModel: LoginViewModel = koinViewModel()
+) {
     val context = LocalContext.current
     var isVisible by remember { mutableStateOf(false) }
     var kodeKelas by remember { mutableStateOf("") }
@@ -55,6 +58,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = viewMode
                 val response = loginState.data
                 val session = SessionManager.getInstance(context)
                 session.saveToken(response.token)
+                session.saveUserKode(kodeKelas)
                 onLoginSuccess()
                 viewModel.resetState()
             }

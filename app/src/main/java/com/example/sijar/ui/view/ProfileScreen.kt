@@ -1,15 +1,7 @@
 package com.example.sijar.ui.view
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,49 +20,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.sijar.R
-import com.example.sijar.api.model.data.PhotoAction
 import com.example.sijar.api.utils.UiState
-import com.example.sijar.api.utils.prepareFilePart
 import com.example.sijar.ui.helper.ModernCard
 import com.example.sijar.ui.helper.RowDivider
 import com.example.sijar.ui.helper.SectionLabel
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.ProfileViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileScreen(
     onLogoutSuccess: () -> Unit,
     onChangePassword: () -> Unit,
     onEditProfile: (() -> Unit)? = null,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     val profileState = viewModel.profileState
     val language = viewModel.language
     val isNotifEnabled = viewModel.isNotifEnabled
     var isVisible by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val filePart = prepareFilePart(context, "photo", it)
-            if (filePart != null) {
-                viewModel.changePhoto(filePart)
-            }
-        }
-    }
 
     LaunchedEffect(Unit) { isVisible = true }
 
@@ -104,13 +81,7 @@ fun ProfileScreen(
                             ProfileHeader(
                                 name = user.name,
                                 kode = user.kode,
-                                photoUrl = user.profile,
-                                onPhotoAction = { action ->
-                                    when (action) {
-                                        PhotoAction.CHANGE -> imagePicker.launch("image/*")
-                                        PhotoAction.DELETE -> viewModel.deletePhoto()
-                                    }
-                                }
+                                photoUrl = user.profile
                             )
                         }
 
@@ -266,126 +237,13 @@ fun ProfileScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileHeader(
     name: String,
     kode: String,
-    photoUrl: String?,
-    onPhotoAction: (PhotoAction) -> Unit
+    photoUrl: String?
 ) {
     val hasPhoto = !photoUrl.isNullOrBlank()
-    var showSheet by remember { mutableStateOf(false) }
-
-    if (showSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
-            containerColor = White,
-            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                    .navigationBarsPadding()
-            ) {
-                Text(
-                    text = stringResource(R.string.profile_pic_title),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = TextMain,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                /* CHANGE PICTURE */
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            showSheet = false
-                            onPhotoAction(PhotoAction.CHANGE)
-                        }
-                        .padding(vertical = 14.dp, horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(BlueLighter),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Outlined.CameraAlt,
-                            contentDescription = null,
-                            tint = BluePrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Column {
-                        Text(stringResource(R.string.action_change_picture), fontWeight = FontWeight.Medium, color = TextMain, fontSize = 15.sp)
-                        Text(stringResource(R.string.profile_pic_msg_select_source), fontSize = 12.sp, color = TextMuted)
-                    }
-                }
-
-                HorizontalDivider(color = BlueLighter, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
-
-                /* DELETE PICTURE IF PICTURE EXIST */
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .then(
-                            if (hasPhoto) Modifier.clickable {
-                                showSheet = false
-                                onPhotoAction(PhotoAction.DELETE)
-                            } else Modifier
-                        )
-                        .padding(vertical = 14.dp, horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (hasPhoto) MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
-                                else BlueLighter.copy(alpha = 0.4f)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Outlined.Delete,
-                            contentDescription = null,
-                            tint = if (hasPhoto) MaterialTheme.colorScheme.error
-                            else TextMuted.copy(alpha = 0.4f),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Column {
-                        Text(
-                            stringResource(R.string.action_delete_picture),
-                            fontWeight = FontWeight.Medium,
-                            color = if (hasPhoto) MaterialTheme.colorScheme.error
-                            else TextMuted.copy(alpha = 0.4f),
-                            fontSize = 15.sp
-                        )
-                        Text(
-                            if (hasPhoto) stringResource(R.string.action_default_picture)
-                            else stringResource(R.string.profile_pic_msg_no_picture),
-                            fontSize = 12.sp,
-                            color = TextMuted.copy(alpha = if (hasPhoto) 1f else 0.5f)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-    }
 
     /* Header visual */
     Box(
@@ -397,12 +255,11 @@ fun ProfileHeader(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            /* AVATAR - TAP TO OPEN BOTTOM SHEET */
+            /* AVATAR */
             Box(
                 modifier = Modifier
                     .size(88.dp)
-                    .clip(CircleShape)
-                    .clickable { showSheet = true },
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 if (hasPhoto) {
@@ -427,24 +284,6 @@ fun ProfileHeader(
                             color = White
                         )
                     }
-                }
-
-                /* BADGE CAMERA */
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(26.dp)
-                        .clip(CircleShape)
-                        .background(BlueLighter)
-                        .border(2.dp, BlueDark, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Filled.CameraAlt,
-                        contentDescription = stringResource(R.string.action_change_picture),
-                        tint = BluePrimary,
-                        modifier = Modifier.size(13.dp)
-                    )
                 }
             }
 

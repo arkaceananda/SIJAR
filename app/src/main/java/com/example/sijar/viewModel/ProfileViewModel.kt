@@ -18,6 +18,8 @@ import com.example.sijar.api.utils.ErrorType
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
+import java.io.File
+
 class ProfileViewModel(application: Application) : BaseViewModel(application) {
 
     private val repository = ProfileRepository(ApiClient.apiService)
@@ -49,35 +51,13 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
                     val userData = result.data.data
                     profileState = run {
                         sessionManager.saveUserName(userData.name)
+                        sessionManager.saveUserKode(userData.kode)
                         UiState.Success(userData)
                     }
                 }
                 is ApiResult.Error -> {
                     profileState = UiState.Error(result.type, result.message)
                 }
-            }
-        }
-    }
-
-    fun changePhoto(photoPart: MultipartBody.Part) {
-        viewModelScope.launch {
-            val token = getBearerToken() ?: return@launch
-            when (repository.updatePhoto(token, photoPart)) {
-                is ApiResult.Success -> loadProfile()
-                is ApiResult.Error -> {}
-            }
-        }
-    }
-
-    fun deletePhoto() {
-        val current = profileState as? UiState.Success ?: return
-        if (current.data.profile == null) return
-
-        viewModelScope.launch {
-            val token = getBearerToken() ?: return@launch
-            when (repository.deletePhoto(token)) {
-                is ApiResult.Success -> loadProfile()
-                is ApiResult.Error -> {}
             }
         }
     }
@@ -126,7 +106,13 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
 
     fun resetChangePasswordState() { changePasswordState = UiState.Idle }
 
-    fun updateProfile(name: String, kode: String, telepon: String?) {
+    fun updateProfile(
+        name: String, 
+        kode: String, 
+        telepon: String?,
+        removePhoto: Boolean,
+        photoFile: File?
+    ) {
         viewModelScope.launch {
             updateProfileState = UiState.Loading
 
@@ -141,7 +127,7 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
             }
 
             updateProfileState = when (
-                val result = repository.updateProfile(token, userId, name, kode, telepon)
+                val result = repository.updateProfile(token, userId, name, kode, telepon, removePhoto, photoFile)
             ) {
                 is ApiResult.Success -> {
                     loadProfile()

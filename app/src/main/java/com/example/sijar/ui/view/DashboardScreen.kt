@@ -22,7 +22,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.model.data.DashboardData
 import com.example.sijar.api.model.data.Peminjaman
@@ -37,12 +36,13 @@ import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.DashboardViewModel
 import com.example.sijar.viewModel.PeminjamanViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    dashboardViewModel: DashboardViewModel = viewModel(),
-    peminjamanViewModel: PeminjamanViewModel = viewModel()
+    dashboardViewModel: DashboardViewModel = koinViewModel(),
+    peminjamanViewModel: PeminjamanViewModel = koinViewModel()
 ) {
     val uiState = dashboardViewModel.dashboardState
     val view = LocalView.current

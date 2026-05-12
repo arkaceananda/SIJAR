@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sijar.R
 import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.utils.UiState
@@ -32,6 +31,7 @@ import com.example.sijar.ui.helper.RowDivider
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.ui.theme.*
 import com.example.sijar.viewModel.PeminjamanViewModel
+import org.koin.androidx.compose.koinViewModel
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -39,7 +39,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RiwayatScreen(
-    peminjamanViewModel: PeminjamanViewModel = viewModel()
+    peminjamanViewModel: PeminjamanViewModel = koinViewModel()
 ) {
     val listState = peminjamanViewModel.listState
     val isRefreshing = peminjamanViewModel.isRefreshing

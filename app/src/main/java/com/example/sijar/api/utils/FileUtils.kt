@@ -27,3 +27,20 @@ fun prepareFilePart(context: Context, partName: String, fileUri: Uri): Multipart
     val requestFile = file.asRequestBody(contentResolver.getType(fileUri)?.toMediaTypeOrNull())
     return MultipartBody.Part.createFormData(partName, file.name, requestFile)
 }
+
+fun uriToFile(context: Context, uri: Uri): File? {
+    val contentResolver = context.contentResolver
+    val fileName = "temp_profile_${System.currentTimeMillis()}.jpg"
+    val file = File(context.cacheDir, fileName)
+    return try {
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            FileOutputStream(file).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+        file
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}

@@ -16,8 +16,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.ui.view.BarangScreen
 import com.example.sijar.ui.view.ChangePassword
@@ -28,18 +26,25 @@ import com.example.sijar.ui.view.PinjamBarang
 import com.example.sijar.ui.view.ProfileScreen
 import com.example.sijar.ui.view.RiwayatScreen
 import com.example.sijar.ui.theme.*
+import android.content.Intent
 import com.example.sijar.viewModel.PeminjamanViewModel
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val sessionManager = SessionManager.getInstance(applicationContext)
-        ApiClient.init(sessionManager)
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SIJARTheme {
-                SIJARApp()
+                SIJARApp(
+                    onLogout = {
+                        val intent = packageManager.getLaunchIntentForPackage(packageName)
+                        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                        finish()
+                    }
+                )
             }
         }
     }
@@ -58,10 +63,10 @@ enum class AppDestinations(
 }
 
 @Composable
-fun SIJARApp() {
+fun SIJARApp(onLogout: () -> Unit) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }
-    val peminjamanViewModel: PeminjamanViewModel = viewModel()
+    val peminjamanViewModel: PeminjamanViewModel = koinViewModel()
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isLoggedIn by rememberSaveable { mutableStateOf(sessionManager.isLoggedIn()) }
@@ -85,7 +90,7 @@ fun SIJARApp() {
                         .padding(bottom = 90.dp)
                 ) {
                     when (currentDestination) {
-                        AppDestinations.HOME -> DashboardScreen(peminjamanViewModel = viewModel())
+                        AppDestinations.HOME -> DashboardScreen(peminjamanViewModel = koinViewModel())
                         AppDestinations.BARANG -> BarangScreen(
                             onItemClick = { item ->
                                 selectedItemForPeminjaman = item
@@ -98,11 +103,10 @@ fun SIJARApp() {
                                 selectedItemForPeminjaman = null
                                 currentDestination = AppDestinations.HOME }
                         )
-                        AppDestinations.RIWAYAT -> RiwayatScreen(peminjamanViewModel = viewModel())
+                        AppDestinations.RIWAYAT -> RiwayatScreen(peminjamanViewModel = koinViewModel())
                         AppDestinations.PROFILE -> ProfileScreen(
                             onLogoutSuccess = {
-                                sessionManager.clearSession()
-                                isLoggedIn = false
+                                onLogout()
                             },
                             onChangePassword = { showChangePassword = true },
                             onEditProfile = { showEditProfile = true }

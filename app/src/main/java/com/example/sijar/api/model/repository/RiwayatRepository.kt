@@ -1,4 +1,6 @@
 package com.example.sijar.api.model.repository
 
-class RiwayatRepository {
+import com.example.sijar.api.service.ApiService
+
+class RiwayatRepository (private val apiService: ApiService){
 }

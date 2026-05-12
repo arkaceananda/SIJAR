@@ -7,13 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sijar.api.model.data.response.AuthResponse
 import com.example.sijar.api.model.repository.AuthRepository
-import com.example.sijar.api.utils.ApiClient
 import com.example.sijar.api.utils.ApiResult
 import com.example.sijar.api.utils.UiState
 import kotlinx.coroutines.launch
 
-class LoginViewModel @JvmOverloads constructor(
-    private val repository: AuthRepository = AuthRepository(ApiClient.apiService)
+class LoginViewModel(
+    private val repository: AuthRepository
 ) : ViewModel() {
 
     var loginState by mutableStateOf<UiState<AuthResponse>?>(null)

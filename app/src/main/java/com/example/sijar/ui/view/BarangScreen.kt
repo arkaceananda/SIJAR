@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -30,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.sijar.R
 import com.example.sijar.api.model.data.Item
@@ -41,28 +41,45 @@ import com.example.sijar.ui.helper.HapticHelper
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.BarangViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarangScreen(
-    viewModel: BarangViewModel = viewModel(),
+    viewModel: BarangViewModel = koinViewModel(),
     onItemClick: (Item) -> Unit
 ) {
     val uiState = viewModel.barangState
-    val filteredList = viewModel.filteredBarang
+    val barangList = viewModel.barangList
+    val totalItems = viewModel.totalItemsFound
+    val listState = rememberLazyListState()
     val searchQuery = viewModel.searchQuery
     val selectedJurusan = viewModel.selectedJurusan
     val isRefreshing = viewModel.isRefreshing
+
     var isVisible by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf<Item?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisibleItem != null && lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 4
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore && uiState !is UiState.Loading) {
+            viewModel.fetchBarang(isRefresh = false)
+        }
+    }
+
     LaunchedEffect(Unit) { isVisible = true }
 
-    val itemCountText = when {
-        filteredList.isEmpty() -> stringResource(R.string.catalog_no_items_found)
-        filteredList.size == 1 -> "${filteredList.size} ${stringResource(R.string.catalog_item_found)}"
-        else -> "${filteredList.size} ${stringResource(R.string.catalog_items_found)}"
+    val itemCountText = when (totalItems) {
+        0 -> stringResource(R.string.catalog_no_items_found)
+        1 -> "1 ${stringResource(R.string.catalog_item_found)}"
+        else -> "$totalItems ${stringResource(R.string.catalog_items_found)}"
     }
 
     val daftarJurusan = listOf(
@@ -110,6 +127,7 @@ fun BarangScreen(
             }
         ) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Sky),
@@ -196,7 +214,10 @@ fun BarangScreen(
                                         else BlueLighter,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { viewModel.onJurusanSelected(jurusan.id) }
+                                    .clickable {
+                                        HapticHelper.performClick(view)
+                                        viewModel.onJurusanSelected(jurusan.id)
+                                    }
                                     .padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
                                 Text(
@@ -213,139 +234,149 @@ fun BarangScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                /* Grid Skeleton Layout */
-                when (uiState) {
-                    is UiState.Loading -> {
-                        items(3) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                repeat(2) {
-                                    BarangGridSkeleton(modifier = Modifier.weight(1f))
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
+                /* Item Count Text */
+                item {
+                    if (uiState is UiState.Success || barangList.isNotEmpty()) {
+                        Text(
+                            text = itemCountText,
+                            fontSize = 12.sp,
+                            color = TextMuted,
+                            modifier = Modifier.padding(
+                                horizontal = 20.dp,
+                                vertical = 4.dp
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
+                }
 
-                    is UiState.Success -> {
-                        item {
+                if (barangList.isEmpty() && uiState is UiState.Loading) {
+                    items(3) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            repeat(2) {
+                                BarangGridSkeleton(modifier = Modifier.weight(1f))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+                } else if (barangList.isEmpty() && uiState is UiState.Success) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 56.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             Text(
-                                text = itemCountText,
-                                fontSize = 12.sp,
+                                stringResource(R.string.search_no_results_title),
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextMain,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = if (searchQuery.isNotEmpty())
+                                    stringResource(R.string.search_no_results_description)
+                                else
+                                    stringResource(R.string.search_no_items_in_category),
                                 color = TextMuted,
+                                fontSize = 13.sp,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(
-                                    horizontal = 20.dp,
-                                    vertical = 4.dp
+                                    top = 8.dp,
+                                    start = 32.dp,
+                                    end = 32.dp
                                 )
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        if (filteredList.isEmpty()) {
-                            item {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 56.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        stringResource(R.string.search_no_results_title),
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = TextMain,
-                                        fontSize = 16.sp
-                                    )
-                                    Text(
-                                        text = if (searchQuery.isNotEmpty())
-                                            stringResource(R.string.search_no_results_description)
-                                        else
-                                            stringResource(R.string.search_no_items_in_category),
-                                        color = TextMuted,
-                                        fontSize = 13.sp,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(
-                                            top = 8.dp,
-                                            start = 32.dp,
-                                            end = 32.dp
-                                        )
-                                    )
-                                }
-                            }
-                        } else {
-                            /* Grid 2 column */
-                            val rows = filteredList.chunked(2)
-                            items(
-                                items = rows,
-                                key = { it.first().id }
-                            ) { rowItems ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    rowItems.forEach { barang ->
-                                        BarangGridCard(
-                                            barang = barang,
-                                            modifier = Modifier.weight(1f),
-                                            onClick = { selectedItem = barang }
-                                        )
-                                    }
-                                    /* Fill the empty rows */
-                                    if (rowItems.size == 1) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
                         }
                     }
+                } else {
+                    val rows = barangList.chunked(2)
+                    items(
+                        items = rows,
+                        key = { it.first().id }
+                    ) { rowItems ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            rowItems.forEach { barang ->
+                                BarangGridCard(
+                                    barang = barang,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { selectedItem = barang }
+                                )
+                            }
+                            if (rowItems.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
 
-                    is UiState.Error -> {
+                    if (uiState is UiState.Loading && barangList.isNotEmpty()) {
                         item {
-                            Column(
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 56.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    stringResource(R.string.error_to_load_data),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = TextMain,
-                                    fontSize = 15.sp
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(32.dp),
+                                    color = BluePrimary,
+                                    strokeWidth = 3.dp
                                 )
-                                Text(
-                                    uiState.asString(),
-                                    color = TextMuted,
-                                    fontSize = 13.sp,
-                                    modifier = Modifier.padding(
-                                        top = 4.dp,
-                                        bottom = 16.dp
-                                    )
-                                )
-                                Button(
-                                    onClick = { viewModel.refresh() },
-                                    shape = RoundedCornerShape(10.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = BluePrimary
-                                    )
-                                ) {
-                                    Text(
-                                        stringResource(R.string.action_try_again),
-                                        color = White,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                }
                             }
                         }
                     }
+                }
 
-                    else -> {}
+                // Handling Error
+                if (uiState is UiState.Error && barangList.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 56.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                stringResource(R.string.error_to_load_data),
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextMain,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                uiState.asString(),
+                                color = TextMuted,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(
+                                    top = 4.dp,
+                                    bottom = 16.dp
+                                )
+                            )
+                            Button(
+                                onClick = { viewModel.refresh() },
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = BluePrimary
+                                )
+                            ) {
+                                Text(
+                                    stringResource(R.string.action_try_again),
+                                    color = White,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

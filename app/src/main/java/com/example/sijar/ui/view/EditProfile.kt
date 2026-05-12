@@ -1,14 +1,21 @@
 package com.example.sijar.ui.view
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,9 +32,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.sijar.R
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.api.utils.uriToFile
 import com.example.sijar.ui.helper.LoadingDots
 import com.example.sijar.ui.helper.ModernCard
 import com.example.sijar.ui.helper.RowDivider
@@ -36,12 +44,13 @@ import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
 import com.example.sijar.viewModel.ProfileViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfile(
     onBack: () -> Unit,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val profileState = viewModel.profileState
@@ -52,11 +61,25 @@ fun EditProfile(
     var fullName by remember { mutableStateOf("") }
     var kode by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    
+    // State for photo
+    var selectedPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var removePhotoFlag by remember { mutableStateOf(false) }
+    var currentPhotoUrl by remember { mutableStateOf<String?>(null) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val updateErrorMessage = (updateState as? UiState.Error)?.asString()
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedPhotoUri = it
+            removePhotoFlag = false
+        }
+    }
 
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) {
@@ -64,6 +87,7 @@ fun EditProfile(
             fullName = user.name
             kode = user.kode
             phone = user.telepon ?: ""
+            currentPhotoUrl = user.profile
             isVisible = true
         }
     }
@@ -76,6 +100,7 @@ fun EditProfile(
                     duration = SnackbarDuration.Short
                 )
                 viewModel.resetUpdateProfileState()
+                onBack() // Back after success
             }
             is UiState.Error -> {
                 snackbarHostState.showSnackbar(
@@ -153,7 +178,7 @@ fun EditProfile(
                                         drawPath(path = path, color = BlueDark)
                                     }
                                     .statusBarsPadding()
-                                    .padding(bottom = 44.dp)
+                                    .padding(bottom = 20.dp)
                             ) {
                                 // Back button
                                 IconButton(
@@ -173,36 +198,76 @@ fun EditProfile(
                                 Column(
                                     modifier = Modifier
                                         .align(Alignment.Center)
-                                        .padding(top = 16.dp),
+                                        .padding(top = 16.dp, bottom = 24.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
+                                    // Profile Image Picker UI
                                     Box(
                                         modifier = Modifier
-                                            .size(60.dp)
-                                            .clip(RoundedCornerShape(18.dp))
-                                            .background(White.copy(alpha = 0.12f)),
+                                            .size(100.dp)
+                                            .clip(CircleShape)
+                                            .background(White.copy(alpha = 0.1f))
+                                            .border(2.dp, White.copy(alpha = 0.5f), CircleShape)
+                                            .clickable { imagePicker.launch("image/*") },
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Icon(
-                                            Icons.Outlined.Edit,
-                                            contentDescription = null,
-                                            tint = White,
-                                            modifier = Modifier.size(28.dp)
-                                        )
+                                        val photoModel = when {
+                                            selectedPhotoUri != null -> selectedPhotoUri
+                                            removePhotoFlag -> null
+                                            else -> currentPhotoUrl
+                                        }
+
+                                        if (photoModel != null) {
+                                            AsyncImage(
+                                                model = photoModel,
+                                                contentDescription = null,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        } else {
+                                            Text(
+                                                text = fullName.take(2).uppercase(),
+                                                fontSize = 32.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = White
+                                            )
+                                        }
+
+                                        // Overlay Camera Icon
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(Color.Black.copy(alpha = 0.2f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.CameraAlt,
+                                                contentDescription = null,
+                                                tint = White,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
                                     }
-                                    Spacer(modifier = Modifier.height(12.dp))
+                                    
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    if (currentPhotoUrl != null || selectedPhotoUri != null) {
+                                        TextButton(
+                                            onClick = {
+                                                selectedPhotoUri = null
+                                                removePhotoFlag = true
+                                            }
+                                        ) {
+                                            Icon(Icons.Outlined.Delete, contentDescription = null, tint = White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(stringResource(R.string.action_delete_picture), color = White.copy(alpha = 0.8f), fontSize = 13.sp)
+                                        }
+                                    }
+
                                     Text(
                                         text = stringResource(R.string.action_edit_profile),
-                                        fontSize = 22.sp,
+                                        fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = White
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.profile_label_full_name) +
-                                                " · " + profileState.data.name,
-                                        fontSize = 13.sp,
-                                        color = BlueLight.copy(alpha = 0.75f),
-                                        modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
                             }
@@ -289,9 +354,12 @@ fun EditProfile(
                                                     context.getString(R.string.email_cannot_be_empty)
                                                 )
                                             }
-                                            else -> viewModel.updateProfile(
-                                                fullName, kode, phone
-                                            )
+                                            else -> {
+                                                val photoFile = selectedPhotoUri?.let { uriToFile(context, it) }
+                                                viewModel.updateProfile(
+                                                    fullName, kode, phone, removePhotoFlag, photoFile
+                                                )
+                                            }
                                         }
                                     },
                                     modifier = Modifier

@@ -12,6 +12,7 @@ class SessionManager private constructor(context: Context) {
         private const val PREF_NAME = "sijar_session"
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_USER_NAME = "user_name"
+        private const val KEY_USER_KODE = "user_kode"
         private const val KEY_LANGUAGE = "app_language" 
         private const val KEY_NOTIF = "notif_enabled"
 
@@ -29,7 +30,9 @@ class SessionManager private constructor(context: Context) {
     fun getToken(): String? = prefs.getString(KEY_TOKEN, null)
     
     fun saveUserName(name: String) = prefs.edit { putString(KEY_USER_NAME, name) }
-    fun getUserName(): String = prefs.getString(KEY_USER_NAME, "User") ?: "User"
+
+    fun saveUserKode(kode: String) = prefs.edit { putString(KEY_USER_KODE, kode) }
+    fun getUserKode(): String = prefs.getString(KEY_USER_KODE, "User") ?: "User"
 
     fun saveLanguage(lang: String) = prefs.edit { putString(KEY_LANGUAGE, lang) }
     fun getLanguage(): String = prefs.getString(KEY_LANGUAGE, "system") ?: "system"

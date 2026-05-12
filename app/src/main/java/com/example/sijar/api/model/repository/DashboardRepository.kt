@@ -1,6 +1,5 @@
 package com.example.sijar.api.model.repository
 
-import com.example.sijar.api.model.data.Peminjaman
 import com.example.sijar.api.model.data.response.DashboardResponse
 import com.example.sijar.api.service.ApiService
 import com.example.sijar.api.utils.ApiResult
