@@ -73,6 +73,8 @@ fun PinjamBarang(
     val isLoading = submitState is UiState.Loading
     val hasValidation = submitState is UiState.Error && submitState.type is ErrorType.BadRequest
 
+    val errorImage = stringResource(R.string.error_image_pick_failed)
+
     LaunchedEffect(Unit) { isVisible = true }
 
     LaunchedEffect(selectedItem) {
@@ -111,9 +113,7 @@ fun PinjamBarang(
                 peminjamanViewModel.onBuktiFotoSelected(file)
             } else {
                 scope.launch {
-                    snackbarHostState.showSnackbar(
-                        context.getString(R.string.error_image_pick_failed)
-                    )
+                    snackbarHostState.showSnackbar(errorImage)
                 }
             }
         }

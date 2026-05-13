@@ -12,7 +12,6 @@ class SIJARApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Inisialisasi ApiClient & SessionManager
         val sessionManager = SessionManager.getInstance(this)
         ApiClient.init(sessionManager)
 

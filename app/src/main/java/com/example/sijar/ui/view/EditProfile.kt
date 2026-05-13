@@ -81,6 +81,11 @@ fun EditProfile(
         }
     }
 
+    val profileUpdated = stringResource(R.string.profile_successfully_updated)
+    val errorOccurred = stringResource(R.string.error_occured)
+    val profileNameCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
+    val emailCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
+
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) {
             val user = profileState.data
@@ -96,7 +101,7 @@ fun EditProfile(
         when (updateState) {
             is UiState.Success -> {
                 snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.profile_successfully_updated),
+                    message = profileUpdated,
                     duration = SnackbarDuration.Short
                 )
                 viewModel.resetUpdateProfileState()
@@ -104,7 +109,7 @@ fun EditProfile(
             }
             is UiState.Error -> {
                 snackbarHostState.showSnackbar(
-                    message = updateErrorMessage ?: context.getString(R.string.error_occured),
+                    message = updateErrorMessage ?: errorOccurred,
                     duration = SnackbarDuration.Long
                 )
             }
@@ -345,14 +350,10 @@ fun EditProfile(
                                     onClick = {
                                         when {
                                             fullName.isBlank() -> scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    context.getString(R.string.profile_name_cannot_be_empty)
-                                                )
+                                                snackbarHostState.showSnackbar(profileNameCantEmpty)
                                             }
                                             kode.isBlank() -> scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    context.getString(R.string.email_cannot_be_empty)
-                                                )
+                                                snackbarHostState.showSnackbar(emailCantEmpty)
                                             }
                                             else -> {
                                                 val photoFile = selectedPhotoUri?.let { uriToFile(context, it) }

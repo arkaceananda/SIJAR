@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sijar.R
@@ -51,6 +52,8 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val resolvedErrorMessage = (loginState as? UiState.Error)?.asString()
+
+    val enterCredentials = stringResource(R.string.auth_msg_enter_credentials)
 
     LaunchedEffect(loginState) {
         when (loginState) {
@@ -138,13 +141,13 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
-                        text = context.getString(R.string.app_name),
+                        text = stringResource(R.string.app_name),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = TextMain
                     )
                     Text(
-                        text = context.getString(R.string.sijar_desc),
+                        text = stringResource(R.string.sijar_desc),
                         fontSize = 13.sp,
                         color = TextMuted,
                         textAlign = TextAlign.Center,
@@ -159,7 +162,7 @@ fun LoginScreen(
                     ) {
                         Column(modifier = Modifier.padding(24.dp)) {
                             Text(
-                                text = context.getString(R.string.auth_title_login),
+                                text = stringResource(R.string.auth_title_login),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextMain
@@ -239,7 +242,7 @@ fun LoginScreen(
                                     } else {
                                         scope.launch {
                                             snackbarHostState.currentSnackbarData?.dismiss()
-                                            snackbarHostState.showSnackbar(context.getString(R.string.auth_msg_enter_credentials))
+                                            snackbarHostState.showSnackbar(enterCredentials)
                                         }
                                     }
                                 },
@@ -257,7 +260,7 @@ fun LoginScreen(
                                     LoadingDots()
                                 } else {
                                     Text(
-                                        text = context.getString(R.string.auth_title_login),
+                                        text = stringResource(R.string.auth_title_login),
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 16.sp,
                                         color = White
@@ -271,7 +274,7 @@ fun LoginScreen(
 
             // Footer
             Text(
-                text = "© ${LocalDate.now().year} ${context.getString(R.string.app_name)}",
+                text = "© ${LocalDate.now().year} ${stringResource(R.string.app_name)}",
                 fontSize = 12.sp,
                 color = TextMuted,
                 textAlign = TextAlign.Center,
@@ -307,7 +310,9 @@ fun AnimatedLogo() {
 
     Box(
         modifier = Modifier
-            .offset(y = offsetY.dp)
+            .offset {
+                IntOffset(x = 0, y = offsetY.dp.roundToPx())
+            }
             .scale(scale)
             .size(72.dp)
             .background(

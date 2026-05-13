@@ -18,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -41,7 +40,6 @@ fun ChangePassword(
     onBack: () -> Unit,
     viewModel: ProfileViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     var isVisible by remember { mutableStateOf(false) }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -69,6 +67,11 @@ fun ChangePassword(
         else -> null
     }
 
+    val errorOccurred = stringResource(R.string.error_occured)
+    val passwordErrorEmpty = stringResource(R.string.change_password_error_empty)
+    val passwordErrorMismatch = stringResource(R.string.change_password_error_mismatch)
+    val passwordHint = stringResource(R.string.change_password_hint_character)
+
     LaunchedEffect(changePasswordState) {
         when (changePasswordState) {
             is UiState.Success -> {
@@ -81,7 +84,7 @@ fun ChangePassword(
             }
             is UiState.Error -> {
                 snackbarHostState.showSnackbar(
-                    message = resolvedErrorMessage ?: context.getString(R.string.error_occured),
+                    message = resolvedErrorMessage ?: errorOccurred,
                     duration = SnackbarDuration.Long
                 )
             }
@@ -222,11 +225,11 @@ fun ChangePassword(
                         onClick = {
                             when {
                                 currentPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty() ->
-                                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.change_password_error_empty)) }
+                                    scope.launch { snackbarHostState.showSnackbar(passwordErrorEmpty) }
                                 newPassword != confirmPassword ->
-                                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.change_password_error_mismatch)) }
+                                    scope.launch { snackbarHostState.showSnackbar(passwordErrorMismatch) }
                                 newPassword.length < 8 ->
-                                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.change_password_hint_character)) }
+                                    scope.launch { snackbarHostState.showSnackbar(passwordHint) }
                                 else ->
                                     viewModel.changePassword(currentPassword, newPassword, confirmPassword)
                             }

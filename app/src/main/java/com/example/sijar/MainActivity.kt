@@ -27,7 +27,6 @@ import com.example.sijar.ui.view.ProfileScreen
 import com.example.sijar.ui.view.RiwayatScreen
 import com.example.sijar.ui.theme.*
 import android.content.Intent
-import com.example.sijar.viewModel.PeminjamanViewModel
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -66,7 +65,6 @@ enum class AppDestinations(
 fun SIJARApp(onLogout: () -> Unit) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }
-    val peminjamanViewModel: PeminjamanViewModel = koinViewModel()
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isLoggedIn by rememberSaveable { mutableStateOf(sessionManager.isLoggedIn()) }

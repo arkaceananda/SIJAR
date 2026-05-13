@@ -41,7 +41,6 @@ object ApiClient {
     private val gson: Gson by lazy {
         GsonBuilder()
             .registerTypeAdapter(ItemResponse::class.java, ItemResponseDeserializer())
-            .setLenient()
             .create()
     }
 

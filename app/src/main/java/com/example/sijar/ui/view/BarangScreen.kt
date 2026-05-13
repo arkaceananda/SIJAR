@@ -96,7 +96,7 @@ fun BarangScreen(
 
     selectedItem?.let { item ->
         ModalBottomSheet(
-            onDismissRequest = { selectedItem = null },
+            onDismissRequest = { },
             sheetState = sheetState,
             containerColor = Color.Transparent,
             dragHandle = null,
@@ -105,7 +105,7 @@ fun BarangScreen(
             BarangDetailSheet(
                 item = item,
                 onPinjam = { onItemClick(item) },
-                onDismiss = { selectedItem = null }
+                onDismiss = { }
             )
         }
     }
@@ -311,7 +311,7 @@ fun BarangScreen(
                                 BarangGridCard(
                                     barang = barang,
                                     modifier = Modifier.weight(1f),
-                                    onClick = { selectedItem = barang }
+                                    onClick = { }
                                 )
                             }
                             if (rowItems.size == 1) {
