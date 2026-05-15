@@ -18,6 +18,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -40,6 +42,9 @@ fun ChangePassword(
     onBack: () -> Unit,
     viewModel: ProfileViewModel = koinViewModel()
 ) {
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var isVisible by remember { mutableStateOf(false) }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -75,6 +80,8 @@ fun ChangePassword(
     LaunchedEffect(changePasswordState) {
         when (changePasswordState) {
             is UiState.Success -> {
+                focusManager.clearFocus()
+                keyboardController?.hide()
                 snackbarHostState.showSnackbar(
                     message = changePasswordState.data.message,
                     duration = SnackbarDuration.Short

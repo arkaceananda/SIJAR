@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -43,6 +45,9 @@ fun LoginScreen(
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var isVisible by remember { mutableStateOf(false) }
     var kodeKelas by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -58,6 +63,8 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is UiState.Success -> {
+                focusManager.clearFocus()
+                keyboardController?.hide()
                 val response = loginState.data
                 val session = SessionManager.getInstance(context)
                 session.saveToken(response.token)

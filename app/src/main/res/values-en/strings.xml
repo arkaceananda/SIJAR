@@ -71,7 +71,7 @@
     <!-- Profile & Account -->
     <string name="profile_title_personal_info">Personal Information</string>
     <string name="profile_label_full_name">Full Name</string>
-    <string name="profile_label_email">Email</string>
+    <string name="profile_label_code">Class Code</string>
     <string name="profile_label_telephone">Telephone</string>
     <string name="profile_label_account">Account</string>
     <string name="profile_error_load">Failed to load profile</string>
@@ -98,7 +98,7 @@
     <string name="profile_pic_msg_no_picture">There is no profile picture to remove.</string>
     <string name="profile_successfully_updated">Profile successfully updates</string>
     <string name="profile_name_cannot_be_empty">Name cannot be empty</string>
-    <string name="email_cannot_be_empty">Email cannot be empty</string>
+    <string name="code_cannot_be_empty">Code cannot be empty</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -117,10 +117,12 @@
     <string name="form_label_proof">Photo Proof</string>
     <string name="form_hint">Fill out the loan form completely</string>
     <string name="form_action_pick_photo">Tap to pick photo</string>
-    <string name="form_label_jam_mulai">Jam Mulai</string>
-    <string name="form_label_jam_selesai">Jam Selesai</string>
-    <string name="form_hint_jam_mulai">Pilih jam</string>
-    <string name="form_hint_jam_selesai">Pilih jam</string>
+    <string name="form_label_jam_mulai">Start Time</string>
+    <string name="form_label_jam_selesai">Finish Time</string>
+    <string name="form_hint_jam_mulai">Select Hour</string>
+    <string name="form_hint_jam_selesai">Select Hour</string>
+    <string name="label_jam_ke">Period %d</string>
+    <string name="label_jam_range">Period %1$d (%2$s) → Period %3$d (%4$s)</string>
 
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">You are not currently borrowing any items</string>
@@ -152,6 +154,7 @@
     <string name="action_save">Save</string>
     <string name="action_logout">Logout</string>
     <string name="action_exit">Exit</string>
+    <string name="action_view_detail">View Detail</string>
 
     <!-- Error Messages -->
     <string name="error_unknown">Unknown Error</string>

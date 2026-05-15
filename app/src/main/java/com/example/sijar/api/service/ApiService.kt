@@ -33,7 +33,7 @@ interface ApiService {
         @Part("keperluan") keperluan: RequestBody,
         @Part("item_id") itemId: RequestBody,
         @Part("kode_unit") kodeUnit: RequestBody,
-        @Part("waktu_ids") waktuIds: List<MultipartBody.Part>,
+        @Part waktuIds: List<MultipartBody.Part>,
         @Part bukti: MultipartBody.Part?
     ): Response<CreatePeminjamanResponse>
 

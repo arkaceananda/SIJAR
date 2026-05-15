@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.sijar.R
+import com.example.sijar.api.utils.ApiClient.BASE_URL
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.helper.ModernCard
 import com.example.sijar.ui.helper.RowDivider
@@ -41,6 +42,7 @@ fun ProfileScreen(
     onLogoutSuccess: () -> Unit,
     onChangePassword: () -> Unit,
     onEditProfile: (() -> Unit)? = null,
+    onLanguageChanged: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val profileState = viewModel.profileState
@@ -65,6 +67,10 @@ fun ProfileScreen(
 
             is UiState.Success -> {
                 val user = profileState.data
+                val profilePhotoUrl = if (!user.profile.isNullOrBlank()) {
+                    "${BASE_URL}storage/avatars/${user.profile}"
+                } else null
+
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(tween(500)) + slideInVertically(
@@ -81,7 +87,7 @@ fun ProfileScreen(
                             ProfileHeader(
                                 name = user.name,
                                 kode = user.kode,
-                                photoUrl = user.profile
+                                photoUrl = profilePhotoUrl
                             )
                         }
 
@@ -98,8 +104,8 @@ fun ProfileScreen(
                                 )
                                 RowDivider()
                                 InfoRow(
-                                    icon = Icons.Outlined.Email,
-                                    label = stringResource(R.string.profile_label_email),
+                                    icon = Icons.Outlined.Class,
+                                    label = stringResource(R.string.profile_label_code),
                                     value = user.kode
                                 )
                                 RowDivider()
@@ -119,7 +125,7 @@ fun ProfileScreen(
                             ModernCard {
                                 LanguageRow(
                                     currentLanguage = language,
-                                    onLanguageChange = { viewModel.changeLanguage(it) }
+                                    onLanguageChange = { viewModel.changeLanguage(it, onLanguageChanged) }
                                 )
                                 RowDivider()
                                 NotifRow(

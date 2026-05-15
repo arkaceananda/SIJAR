@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +64,9 @@ fun PinjamBarang(
 ) {
     val context = LocalContext.current
     val view = LocalView.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val submitState = peminjamanViewModel.submitState
     val waktuState = waktuViewModel.waktuState
     val snackbarHostState = remember { SnackbarHostState() }
@@ -84,6 +89,8 @@ fun PinjamBarang(
     LaunchedEffect(submitState) {
         when (submitState) {
             is UiState.Success -> {
+                focusManager.clearFocus()
+                keyboardController?.hide()
                 HapticHelper.performClick(view)
                 peminjamanViewModel.resetForm()
                 onSuccess()
@@ -431,8 +438,7 @@ fun PinjamBarangHeader() {
                 }
                 drawPath(path = path, color = BlueDark)
             }
-            .navigationBarsPadding()
-            .statusBarsPadding()
+            .windowInsetsPadding(WindowInsets.statusBars)
             .padding(bottom = 52.dp)
     ) {
         Column(
@@ -582,10 +588,13 @@ fun WaktuRangeSelector(
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
-                            text = "Jam ke-${selectedJamMulai.jamKe} " +
-                                    "(${selectedJamMulai.startTime}) " +
-                                    "→ Jam ke-${selectedJamSelesai.jamKe} " +
-                                    "(${selectedJamSelesai.endTime})",
+                            text = stringResource(
+                                R.string.label_jam_range,
+                                selectedJamMulai.jamKe,
+                                selectedJamMulai.startTime,
+                                selectedJamSelesai.jamKe,
+                                selectedJamSelesai.endTime
+                            ),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = BluePrimary
@@ -670,7 +679,7 @@ private fun WaktuDropdown(
                 Column(modifier = Modifier.weight(1f)) {
                     if (selectedWaktu != null) {
                         Text(
-                            text = "Jam ke-${selectedWaktu.jamKe}",
+                            text = stringResource(R.string.label_jam_ke, selectedWaktu.jamKe),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = BluePrimary
@@ -736,7 +745,7 @@ private fun WaktuDropdown(
                             )
                             Column {
                                 Text(
-                                    text = "Jam ke-${waktu.jamKe}",
+                                    text = stringResource(R.string.label_jam_ke, waktu.jamKe),
                                     fontSize = 13.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold
                                     else FontWeight.Normal,

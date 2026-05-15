@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -53,6 +55,9 @@ fun EditProfile(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val profileState = viewModel.profileState
     val updateState = viewModel.updateProfileState
     val isLoading = updateState is UiState.Loading
@@ -84,7 +89,7 @@ fun EditProfile(
     val profileUpdated = stringResource(R.string.profile_successfully_updated)
     val errorOccurred = stringResource(R.string.error_occured)
     val profileNameCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
-    val emailCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
+    val codeCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
 
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) {
@@ -100,6 +105,8 @@ fun EditProfile(
     LaunchedEffect(updateState) {
         when (updateState) {
             is UiState.Success -> {
+                focusManager.clearFocus()
+                keyboardController?.hide()
                 snackbarHostState.showSnackbar(
                     message = profileUpdated,
                     duration = SnackbarDuration.Short
@@ -293,10 +300,10 @@ fun EditProfile(
                                     isEnabled = !isLoading
                                 )
                                 RowDivider()
-                                // Email
+                                // Class Code
                                 EditFieldRow(
-                                    icon = Icons.Outlined.Email,
-                                    label = stringResource(R.string.profile_label_email),
+                                    icon = Icons.Outlined.Class,
+                                    label = stringResource(R.string.profile_label_code),
                                     value = kode,
                                     onValueChange = { kode = it },
                                     keyboardType = KeyboardType.Text,
@@ -353,7 +360,7 @@ fun EditProfile(
                                                 snackbarHostState.showSnackbar(profileNameCantEmpty)
                                             }
                                             kode.isBlank() -> scope.launch {
-                                                snackbarHostState.showSnackbar(emailCantEmpty)
+                                                snackbarHostState.showSnackbar(codeCantEmpty)
                                             }
                                             else -> {
                                                 val photoFile = selectedPhotoUri?.let { uriToFile(context, it) }

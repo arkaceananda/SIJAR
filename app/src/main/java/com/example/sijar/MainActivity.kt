@@ -107,7 +107,13 @@ fun SIJARApp(onLogout: () -> Unit) {
                                 onLogout()
                             },
                             onChangePassword = { showChangePassword = true },
-                            onEditProfile = { showEditProfile = true }
+                            onEditProfile = { showEditProfile = true },
+                            onLanguageChanged = {
+                                val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                                intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(intent)
+                                (context as? ComponentActivity)?.finish()
+                            }
                         )
                     }
                 }

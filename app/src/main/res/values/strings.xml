@@ -71,7 +71,7 @@
     <!-- Profile & Account -->
     <string name="profile_title_personal_info">Informasi Pribadi</string>
     <string name="profile_label_full_name">Nama Lengkap</string>
-    <string name="profile_label_email">Email</string>
+    <string name="profile_label_code">Kode Kelas</string>
     <string name="profile_label_telephone">Telepon</string>
     <string name="profile_label_account">Akun</string>
     <string name="profile_error_load">Gagal memuat profil</string>
@@ -98,7 +98,7 @@
     <string name="profile_pic_msg_no_picture">Belum ada foto profil untuk dihapus.</string>
     <string name="profile_successfully_updated">Profil berhasil diperbarui</string>
     <string name="profile_name_cannot_be_empty">Nama tidak boleh kosong</string>
-    <string name="email_cannot_be_empty">Email tidak boleh kosong</string>
+    <string name="code_cannot_be_empty">Kode Kelas tidak boleh kosong</string>
 
     <!-- Settings -->
     <string name="settings_title">Pengaturan</string>
@@ -121,6 +121,8 @@
     <string name="form_label_jam_selesai">Jam Selesai</string>
     <string name="form_hint_jam_mulai">Pilih jam</string>
     <string name="form_hint_jam_selesai">Pilih jam</string>
+    <string name="label_jam_ke">Jam ke-%d</string>
+    <string name="label_jam_range">Jam ke-%1$d (%2$s) → Jam ke-%3$d (%4$s)</string>
 
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">Kamu tidak sedang meminjam barang apapun</string>
@@ -152,6 +154,7 @@
     <string name="action_save">Simpan</string>
     <string name="action_logout">Keluar</string>
     <string name="action_exit">Keluar</string>
+    <string name="action_view_detail">Lihat Detail</string>
 
     <!-- Error Messages -->
     <string name="error_unknown">Error tidak diketahui</string>

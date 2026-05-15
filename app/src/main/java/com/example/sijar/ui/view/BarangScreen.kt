@@ -96,7 +96,7 @@ fun BarangScreen(
 
     selectedItem?.let { item ->
         ModalBottomSheet(
-            onDismissRequest = { },
+            onDismissRequest = { selectedItem = null },
             sheetState = sheetState,
             containerColor = Color.Transparent,
             dragHandle = null,
@@ -104,8 +104,11 @@ fun BarangScreen(
         ) {
             BarangDetailSheet(
                 item = item,
-                onPinjam = { onItemClick(item) },
-                onDismiss = { }
+                onPinjam = {
+                    selectedItem = null
+                    onItemClick(item)
+                },
+                onDismiss = { selectedItem = null }
             )
         }
     }
@@ -311,7 +314,7 @@ fun BarangScreen(
                                 BarangGridCard(
                                     barang = barang,
                                     modifier = Modifier.weight(1f),
-                                    onClick = { }
+                                    onClick = { selectedItem = barang }
                                 )
                             }
                             if (rowItems.size == 1) {
@@ -419,9 +422,11 @@ fun BarangGridCard(
                     contentDescription = barang.namaItem,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(
-                            topStart = 16.dp, topEnd = 16.dp
-                        )),
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 16.dp, topEnd = 16.dp
+                            )
+                        ),
                     contentScale = ContentScale.Crop
                 )
 
@@ -479,22 +484,29 @@ fun BarangGridCard(
                         .fillMaxWidth()
                         .height(34.dp),
                     shape = RoundedCornerShape(8.dp),
-                    enabled = tersedia,
                     contentPadding = PaddingValues(0.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = BluePrimary,
-                        disabledContainerColor = BlueLighter
+                        containerColor = if (tersedia) BlueLighter else BlueLighter.copy(alpha = 0.5f),
+                        disabledContainerColor = BlueLighter.copy(alpha = 0.3f)
                     )
                 ) {
-                    Text(
-                        text = if (tersedia)
-                            stringResource(R.string.action_borrow_now)
-                        else
-                            stringResource(R.string.status_unavailable),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (tersedia) White else TextMuted
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = null,
+                            tint = if (tersedia) BluePrimary else TextMuted,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.action_view_detail),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (tersedia) BluePrimary else TextMuted
+                        )
+                    }
                 }
             }
         }

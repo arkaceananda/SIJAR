@@ -60,7 +60,7 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
         isNotifEnabled = enabled
     }
 
-    fun changeLanguage(lang: String) {
+    fun changeLanguage(lang: String, onLanguageChanged: () -> Unit) {
         sessionManager.saveLanguage(lang)
         language = lang
         val appLocale = if (lang == "system") {
@@ -69,6 +69,7 @@ class ProfileViewModel(application: Application) : BaseViewModel(application) {
             LocaleListCompat.forLanguageTags(lang)
         }
         AppCompatDelegate.setApplicationLocales(appLocale)
+        onLanguageChanged()
     }
 
     fun logout(onSuccess: () -> Unit) {
