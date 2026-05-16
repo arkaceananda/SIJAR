@@ -1,5 +1,8 @@
 package com.example.sijar.api.utils
 
+import android.annotation.SuppressLint
+import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.example.sijar.api.model.data.response.ItemResponse
 import com.example.sijar.api.model.data.response.ItemResponseDeserializer
 import com.example.sijar.api.service.ApiService
@@ -9,13 +12,17 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.getValue
 
+@SuppressLint("StaticFieldLeak")
 object ApiClient {
-    const val BASE_URL = "http://10.0.2.2:8000/api/mobile/"
+    const val BASE_URL = "http://10.0.2.2/api/mobile/"
 
     private var sessionManager: SessionManager? = null
+    private var context: Context? = null
 
-    fun init(sessionManager: SessionManager) {
+    fun init(context: Context, sessionManager: SessionManager) {
+        this.context = context.applicationContext
         this.sessionManager = sessionManager
     }
 
@@ -23,19 +30,25 @@ object ApiClient {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val client = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val requestBuilder = chain.request().newBuilder()
-            requestBuilder.addHeader("Accept", "application/json")
-            val token = sessionManager?.getToken()
-            if (!token.isNullOrEmpty()) {
-                requestBuilder.addHeader("Authorization", "Bearer $token")
-            }
+    private val client by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val requestBuilder = chain.request().newBuilder()
+                requestBuilder.addHeader("Accept", "application/json")
+                val token = sessionManager?.getToken()
+                if (!token.isNullOrEmpty()) {
+                    requestBuilder.addHeader("Authorization", "Bearer $token")
+                }
 
-            chain.proceed(requestBuilder.build())
-        }
-        .addInterceptor(logging)
-        .build()
+                chain.proceed(requestBuilder.build())
+            }
+            .addInterceptor(logging)
+            .addInterceptor(ChuckerInterceptor(context!!))
+//            .apply {
+//                FlipperInitializer.getInterceptor()?.let { addInterceptor(it) }
+//            }
+            .build()
+    }
 
     // Custom GSON
     private val gson: Gson by lazy {

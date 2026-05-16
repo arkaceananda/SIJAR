@@ -36,7 +36,7 @@ import coil.compose.AsyncImage
 import com.example.sijar.R
 import com.example.sijar.api.model.data.Item
 import com.example.sijar.api.model.data.JurusanFilter
-import com.example.sijar.api.utils.ApiClient
+import com.example.sijar.api.utils.ApiClient.BASE_URL
 import com.example.sijar.api.utils.UiState
 import com.example.sijar.ui.helper.HapticHelper
 import com.example.sijar.ui.theme.*
@@ -402,6 +402,8 @@ fun BarangGridCard(
         else -> Color.Gray
     }
 
+    val imageUrl = BASE_URL.substringBefore("/api/") + "/storage/encrypted/${barang.fotoBarang}"
+
     Card(
         modifier = modifier
             .height(260.dp)
@@ -418,7 +420,7 @@ fun BarangGridCard(
                     .height(140.dp)
             ) {
                 AsyncImage(
-                    model = "http://10.0.2.2:8000/storage/encrypted/${barang.fotoBarang}",
+                    model = imageUrl,
                     contentDescription = barang.namaItem,
                     modifier = Modifier
                         .fillMaxSize()
@@ -529,6 +531,8 @@ fun BarangDetailSheet(
         else -> Color.Gray
     }
 
+    val imageUrl = BASE_URL.substringBefore("/api/") + "/storage/encrypted/${item.fotoBarang}"
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -541,7 +545,7 @@ fun BarangDetailSheet(
                 .height(260.dp)
         ) {
             AsyncImage(
-                model = "http://10.0.2.2:8000/storage/encrypted/${item.fotoBarang}",
+                model = imageUrl,
                 contentDescription = item.namaItem,
                 modifier = Modifier
                     .fillMaxSize()

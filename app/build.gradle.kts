@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sijar"
-        minSdk = 33
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -34,6 +34,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 }
 
@@ -70,4 +75,15 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation("com.github.chuckerteam.chucker:library:4.3.1")
+    debugImplementation("com.facebook.flipper:flipper:0.273.0")
+    debugImplementation("com.facebook.flipper:flipper-network-plugin:0.273.0")
+    debugImplementation("com.facebook.soloader:soloader:0.12.1")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.3.1")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.facebook.fbjni:fbjni:0.7.0")
+    }
 }

@@ -53,7 +53,7 @@ class PeminjamanRepository(private val apiService: ApiService) {
                 }
 
                 val buktiFotoPart = buktiFoto?.let {
-                    val body = it.asRequestBody("image/jpeg".toMediaType())
+                    val body = it.asRequestBody("image/*".toMediaType())
                     MultipartBody.Part.createFormData("bukti", it.name, body)
                 }
 

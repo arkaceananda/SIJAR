@@ -15,7 +15,7 @@ class SIJARApplication : Application() {
         super.onCreate()
 
         val sessionManager = SessionManager.getInstance(this)
-        ApiClient.init(sessionManager)
+        ApiClient.init(this, sessionManager)
 
         // Initialize language
         val lang = sessionManager.getLanguage()
