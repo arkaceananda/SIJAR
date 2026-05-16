@@ -123,6 +123,8 @@
     <string name="form_hint_jam_selesai">Select Hour</string>
     <string name="label_jam_ke">Period %d</string>
     <string name="label_jam_range">Period %1$d (%2$s) → Period %3$d (%4$s)</string>
+    <string name="form_no_item_selected">No items selected yet</string>
+    <string name="form_click_here">Click to select item</string>
 
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">You are not currently borrowing any items</string>
@@ -163,6 +165,6 @@
     <string name="error_server">Server Error Occurred</string>
     <string name="error_no_internet">No Internet Connection</string>
     <string name="error_to_load_data">Failed to load data</string>
-    <string name="error_occured">An error occurred</string>
+    <string name="error_occurred">An error occurred</string>
     <string name="error_image_pick_failed">Failed to load picture. Please try again.</string>
 </resources>

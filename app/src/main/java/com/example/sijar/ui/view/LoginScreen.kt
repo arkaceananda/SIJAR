@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.sijar.R
 import com.example.sijar.api.utils.SessionManager
 import com.example.sijar.api.utils.UiState
+import com.example.sijar.ui.helper.HapticHelper
 import com.example.sijar.ui.helper.LoadingDots
 import com.example.sijar.ui.theme.*
 import com.example.sijar.ui.helper.asString
@@ -45,6 +47,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -63,6 +66,7 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is UiState.Success -> {
+                HapticHelper.performSuccess(view)
                 focusManager.clearFocus()
                 keyboardController?.hide()
                 val response = loginState.data
@@ -73,6 +77,7 @@ fun LoginScreen(
                 viewModel.resetState()
             }
             is UiState.Error -> {
+                HapticHelper.performError(view)
                 resolvedErrorMessage?.let { msg ->
                     scope.launch {
                         snackbarHostState.currentSnackbarData?.dismiss()
@@ -229,7 +234,10 @@ fun LoginScreen(
                                     cursorColor = BluePrimary
                                 ),
                                 trailingIcon = {
-                                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                                    IconButton(onClick = {
+                                        HapticHelper.performClick(view)
+                                        isPasswordVisible = !isPasswordVisible
+                                    }) {
                                         Icon(
                                             imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                             contentDescription = null,
@@ -245,8 +253,10 @@ fun LoginScreen(
                             Button(
                                 onClick = {
                                     if (kodeKelas.isNotEmpty() && password.isNotEmpty()) {
+                                        HapticHelper.performLongPress(view)
                                         viewModel.login(kodeKelas, password)
                                     } else {
+                                        HapticHelper.performError(view)
                                         scope.launch {
                                             snackbarHostState.currentSnackbarData?.dismiss()
                                             snackbarHostState.showSnackbar(enterCredentials)

@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -59,6 +60,7 @@ import org.koin.androidx.compose.koinViewModel
 fun PinjamBarang(
     selectedItem: Item?,
     onSuccess: () -> Unit,
+    onNavigateBarang: () -> Unit,
     peminjamanViewModel: PeminjamanViewModel = koinViewModel(),
     waktuViewModel: WaktuViewModel = koinViewModel()
 ) {
@@ -95,6 +97,7 @@ fun PinjamBarang(
                 peminjamanViewModel.resetForm()
                 onSuccess()
             }
+
             is UiState.Error -> {
                 resolvedErrorMessage?.let { msg ->
                     scope.launch {
@@ -107,6 +110,7 @@ fun PinjamBarang(
                 }
                 peminjamanViewModel.resetSubmitState()
             }
+
             else -> {}
         }
     }
@@ -162,30 +166,47 @@ fun PinjamBarang(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 SectionLabel(stringResource(R.string.form_label_selected_item))
-                selectedItem?.let { item ->
-                    SelectedItemCard(item = item)
-                } ?: run {
+
+                if (selectedItem != null) {
+                    SelectedItemCard(item = selectedItem)
+                } else {
                     ModernCard {
                         Row(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .clickable { onNavigateBarang() },
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.Info,
+                                imageVector = Icons.Outlined.ShoppingCart,
                                 contentDescription = null,
-                                tint = TextMuted,
+                                tint = BluePrimary,
                                 modifier = Modifier.size(18.dp)
                             )
-                            Text(
-                                text = stringResource(R.string.catalog_no_items_found),
-                                color = TextMuted,
-                                fontSize = 13.sp
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.form_no_item_selected),
+                                    color = BluePrimary,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    text = stringResource(R.string.form_click_here),
+                                    color = BluePrimary,
+                                    fontSize = 11.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = TextMuted.copy(alpha = 0.5f),
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SectionLabel(stringResource(R.string.form_section_detail))
@@ -208,7 +229,7 @@ fun PinjamBarang(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    Icons.Outlined.Description,
+                                    imageVector = Icons.Outlined.Description,
                                     contentDescription = null,
                                     tint = BluePrimary,
                                     modifier = Modifier.size(18.dp)
@@ -267,7 +288,7 @@ fun PinjamBarang(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    Icons.Outlined.QrCode,
+                                    imageVector = Icons.Outlined.QrCode,
                                     contentDescription = null,
                                     tint = BluePrimary,
                                     modifier = Modifier.size(18.dp)
@@ -325,6 +346,7 @@ fun PinjamBarang(
                             )
                         }
                     }
+
                     is UiState.Success -> {
                         LaunchedEffect(waktuState.data) {
                             peminjamanViewModel.setCachedWaktu(waktuState.data)
@@ -338,6 +360,7 @@ fun PinjamBarang(
                             onJamSelesaiSelected = { peminjamanViewModel.onJamSelesaiSelected(it) }
                         )
                     }
+
                     is UiState.Error -> {
                         Card(
                             modifier = Modifier
@@ -356,6 +379,7 @@ fun PinjamBarang(
                             )
                         }
                     }
+
                     else -> {}
                 }
 
@@ -375,7 +399,10 @@ fun PinjamBarang(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 Button(
-                    onClick = { peminjamanViewModel.submitPeminjaman(context) },
+                    onClick = {
+                        peminjamanViewModel.submitPeminjaman(context)
+                        HapticHelper.performLongPress(view = view)
+                    },
                     enabled = !isLoading && selectedItem != null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -421,6 +448,7 @@ fun PinjamBarangHeader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .drawBehind {
                 val waveHeight = 40.dp.toPx()
                 val w = size.width
@@ -444,6 +472,7 @@ fun PinjamBarangHeader() {
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
+                .statusBarsPadding()
                 .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -502,7 +531,7 @@ private fun SelectedItemCard(item: Item) {
             ) {
                 if (!item.fotoBarang.isNullOrBlank()) {
                     AsyncImage(
-                        model = "${ApiClient.BASE_URL}storage/barang/${item.fotoBarang}",
+                        model = "${ApiClient.BASE_URL}storage/encrypted/${item.fotoBarang}",
                         contentDescription = item.namaItem,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -613,7 +642,8 @@ fun WaktuRangeSelector(
                 placeholder = stringResource(R.string.form_hint_jam_mulai),
                 waktuList = waktuList,
                 selectedWaktu = selectedJamMulai,
-                onSelected = onJamMulaiSelected
+                onSelected = onJamMulaiSelected,
+                showStartTime = true
             )
 
             WaktuDropdown(
@@ -623,7 +653,8 @@ fun WaktuRangeSelector(
                 waktuList = waktuSelesaiOptions,
                 selectedWaktu = selectedJamSelesai,
                 onSelected = onJamSelesaiSelected,
-                enabled = selectedJamMulai != null
+                enabled = selectedJamMulai != null,
+                showStartTime = false
             )
         }
     }
@@ -637,6 +668,7 @@ private fun WaktuDropdown(
     waktuList: List<WaktuPeminjaman>,
     selectedWaktu: WaktuPeminjaman?,
     onSelected: (WaktuPeminjaman) -> Unit,
+    showStartTime: Boolean = true,
     enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -685,10 +717,8 @@ private fun WaktuDropdown(
                             color = BluePrimary
                         )
                         Text(
-                            text = if (label.contains("Mulai", ignoreCase = true))
-                                selectedWaktu.startTime
-                            else
-                                selectedWaktu.endTime,
+                            text = if (showStartTime) selectedWaktu.startTime
+                            else selectedWaktu.endTime,
                             fontSize = 11.sp,
                             color = TextMuted
                         )

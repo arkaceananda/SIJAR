@@ -87,7 +87,7 @@ fun EditProfile(
     }
 
     val profileUpdated = stringResource(R.string.profile_successfully_updated)
-    val errorOccurred = stringResource(R.string.error_occured)
+    val errorOccurred = stringResource(R.string.error_occurred)
     val profileNameCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
     val codeCantEmpty = stringResource(R.string.profile_name_cannot_be_empty)
 

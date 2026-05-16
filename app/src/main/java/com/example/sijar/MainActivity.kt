@@ -27,6 +27,7 @@ import com.example.sijar.ui.view.ProfileScreen
 import com.example.sijar.ui.view.RiwayatScreen
 import com.example.sijar.ui.theme.*
 import android.content.Intent
+import com.example.sijar.api.model.data.Item
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -70,7 +71,7 @@ fun SIJARApp(onLogout: () -> Unit) {
     var isLoggedIn by rememberSaveable { mutableStateOf(sessionManager.isLoggedIn()) }
     var showChangePassword by rememberSaveable { mutableStateOf(false) }
     var showEditProfile by rememberSaveable { mutableStateOf(false) }
-    var selectedItemForPeminjaman by remember { mutableStateOf<com.example.sijar.api.model.data.Item?>(null) }
+    var selectedItemForPeminjaman by remember { mutableStateOf<Item?>(null) }
 
     if (!isLoggedIn) {
         LoginScreen(onLoginSuccess = { isLoggedIn = true })
@@ -99,7 +100,10 @@ fun SIJARApp(onLogout: () -> Unit) {
                             selectedItem = selectedItemForPeminjaman,
                             onSuccess = {
                                 selectedItemForPeminjaman = null
-                                currentDestination = AppDestinations.HOME }
+                                currentDestination = AppDestinations.HOME },
+                            onNavigateBarang = {
+                                currentDestination = AppDestinations.BARANG
+                            }
                         )
                         AppDestinations.RIWAYAT -> RiwayatScreen(peminjamanViewModel = koinViewModel())
                         AppDestinations.PROFILE -> ProfileScreen(

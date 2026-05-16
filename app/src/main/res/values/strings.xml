@@ -123,6 +123,8 @@
     <string name="form_hint_jam_selesai">Pilih jam</string>
     <string name="label_jam_ke">Jam ke-%d</string>
     <string name="label_jam_range">Jam ke-%1$d (%2$s) → Jam ke-%3$d (%4$s)</string>
+    <string name="form_no_item_selected">Belum ada barang yang dipilih</string>
+    <string name="form_click_here">Klik untuk memilih barang</string>
 
     <!-- History / Riwayat -->
     <string name="riwayat_empty_active">Kamu tidak sedang meminjam barang apapun</string>
@@ -163,6 +165,6 @@
     <string name="error_server">Terjadi kesalahan server</string>
     <string name="error_no_internet">Tidak ada koneksi internet</string>
     <string name="error_to_load_data">Gagal memuat data</string>
-    <string name="error_occured">Terjadi kesalahan</string>
+    <string name="error_occurred">Terjadi kesalahan</string>
     <string name="error_image_pick_failed">Gagal memuat foto, coba lagi</string>
 </resources>

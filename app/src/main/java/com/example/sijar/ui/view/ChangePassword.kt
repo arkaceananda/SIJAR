@@ -72,7 +72,7 @@ fun ChangePassword(
         else -> null
     }
 
-    val errorOccurred = stringResource(R.string.error_occured)
+    val errorOccurred = stringResource(R.string.error_occurred)
     val passwordErrorEmpty = stringResource(R.string.change_password_error_empty)
     val passwordErrorMismatch = stringResource(R.string.change_password_error_mismatch)
     val passwordHint = stringResource(R.string.change_password_hint_character)
